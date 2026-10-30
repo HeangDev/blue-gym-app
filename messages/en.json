@@ -1,0 +1,10 @@
+{
+    "LoginPage": {
+        "title": "Login",
+        "username": "Username",
+        "password": "Password",
+        "loginButton": "Log In",
+        "forgotPassword": "Forgot Password?",
+        "errorMessage": "Invalid username or password."
+    }
+}

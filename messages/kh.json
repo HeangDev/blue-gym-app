@@ -1,0 +1,10 @@
+{
+    "LoginPage": {
+        "title": "Login",
+        "username": "ឈ្មោះអ្នកប្រើប្រាស់",
+        "password": "ពាក្យសម្ងាត់",
+        "loginButton": "ចូល",
+        "forgotPassword": "Forgot Password?",
+        "errorMessage": "Invalid username or password."
+    }
+}
