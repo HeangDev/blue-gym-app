@@ -19,6 +19,7 @@ import {
   CommandList,
 } from "@/components/ui/command"
 import { Input } from "@/components/ui/input"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 
@@ -39,6 +40,7 @@ export function ParentPicker({
   options,
   existingNames,
   onAddParent,
+  loading,
 }: {
   value: string
   onChange: (id: string) => void
@@ -46,6 +48,8 @@ export function ParentPicker({
   existingNames: string[]
   /** Creates a top-level category with this name and returns its id. */
   onAddParent: (name: string) => string
+  /** Options are still loading: shows placeholders instead of a flash of "None". */
+  loading?: boolean
 }) {
   const [open, setOpen] = useState(false)
   const [adding, setAdding] = useState(false)
@@ -89,12 +93,17 @@ export function ParentPicker({
           type="button"
           role="combobox"
           aria-expanded={open}
+          aria-busy={loading}
           aria-label="Parent category"
           className="flex h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-lg border border-border bg-white px-3 text-sm font-(family-name:--font-geist-sans) transition-colors outline-none hover:border-gold/50 focus-visible:border-gold focus-visible:ring-2 focus-visible:ring-gold/25 data-[state=open]:border-gold"
         >
-          <span className="truncate">
-            {selected ? selected.name : "None (top level)"}
-          </span>
+          {loading ? (
+            <Skeleton className="h-4 w-32" />
+          ) : (
+            <span className="truncate">
+              {selected ? selected.name : "None (top level)"}
+            </span>
+          )}
           <ChevronDownIcon
             className={cn(
               "size-4 shrink-0 text-muted-foreground transition-transform duration-200",
@@ -120,21 +129,33 @@ export function ParentPicker({
           </div>
 
           <CommandList className="max-h-56 p-1">
-            <CommandEmpty>No category found.</CommandEmpty>
+            {loading && (
+              <div className="grid gap-1 p-1" aria-label="Loading categories">
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className="flex items-center gap-2.5 py-2">
+                    <Skeleton className="size-6 rounded-md" />
+                    <Skeleton className="h-4 flex-1" />
+                  </div>
+                ))}
+              </div>
+            )}
+            {!loading && <CommandEmpty>No category found.</CommandEmpty>}
 
-            <CommandItem
-              value="none top level"
-              data-checked={value === TOP_LEVEL}
-              onSelect={() => pick(TOP_LEVEL)}
-              className="cursor-pointer gap-2.5 rounded-lg py-2 data-selected:bg-gold/15!"
-            >
-              <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
-                <CircleDashedIcon className="size-3.5" />
-              </span>
-              <span className="flex-1">None (top level)</span>
-            </CommandItem>
+            {!loading && (
+              <CommandItem
+                value="none top level"
+                data-checked={value === TOP_LEVEL}
+                onSelect={() => pick(TOP_LEVEL)}
+                className="cursor-pointer gap-2.5 rounded-lg py-2 data-selected:bg-gold/15!"
+              >
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground">
+                  <CircleDashedIcon className="size-3.5" />
+                </span>
+                <span className="flex-1">None (top level)</span>
+              </CommandItem>
+            )}
 
-            {options.map((o) => (
+            {(loading ? [] : options).map((o) => (
               <CommandItem
                 key={o.id}
                 value={`${o.name} ${o.id}`}

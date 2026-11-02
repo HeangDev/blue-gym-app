@@ -155,151 +155,147 @@ function flatten(list: Category[], depth = 0): ParentOption[] {
 }
 
 export default function CategoriesPage() {
-  const [rows, setRows] = useState(categories)
-  const [selected, setSelected] = useState<Category[]>([])
-  const [createOpen, setCreateOpen] = useState(false)
-  // the category being edited (opens the edit popup)
-  const [editing, setEditing] = useState<Category | null>(null)
+    const [rows, setRows] = useState(categories)
+    const [selected, setSelected] = useState<Category[]>([])
+    const [createOpen, setCreateOpen] = useState(false)
+    // the category being edited (opens the edit popup)
+    const [editing, setEditing] = useState<Category | null>(null)
 
-  // custom row actions: each handler gets the category of the clicked row
-  const rowActions = useMemo<RowAction<Category>[]>(
-    () => [
-      {
-        label: "Edit",
-        icon: PencilIcon,
-        onSelect: (c) => setEditing(c),
-      },
-      {
-        label: (c) => (c.status === "Active" ? "Set as draft" : "Set as active"),
-        icon: ToggleRightIcon,
-        onSelect: (c) =>
-          setRows((cur) =>
-            updateCategory(cur, c.id, (x) => ({
-              ...x,
-              status: x.status === "Active" ? "Draft" : "Active",
-            }))
-          ),
-      },
-      {
-        label: "Delete",
-        icon: Trash2Icon,
-        variant: "destructive",
-        confirm: {
-          title: (c) => `Delete "${c.name}"?`,
-          description: (c) =>
-            c.subRows?.length
-              ? `This also deletes its ${c.subRows.length} sub-categor${c.subRows.length === 1 ? "y" : "ies"} and can't be undone.`
-              : "This can't be undone.",
-          confirmLabel: "Delete",
-        },
-        onSelect: (c) =>
-          setRows((cur) => removeCategories(cur, new Set([c.id]))),
-      },
-    ],
-    []
-  )
-
-  const options = flatten(rows)
-
-  // adds a top-level category from the "Add new parent" button and returns its id
-  function handleAddParent(name: string) {
-    const id = `${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now().toString(36)}`
-    setRows((current) => [
-      ...current,
-      { id, name, products: 0, status: "Active" },
-    ])
-    return id
-  }
-
-  function handleCreate({ name, parentId, status }: NewCategory) {
-    const id = `${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now().toString(36)}`
-    setRows((current) =>
-      addCategory(current, parentId, { id, name, products: 0, status })
+    // custom row actions: each handler gets the category of the clicked row
+    const rowActions = useMemo<RowAction<Category>[]>(
+        () => [
+            {
+                label: "Edit",
+                icon: PencilIcon,
+                onSelect: (c) => setEditing(c),
+            },
+            {
+                label: (c) => (c.status === "Active" ? "Set as draft" : "Set as active"),
+                icon: ToggleRightIcon,
+                onSelect: (c) =>
+                setRows((cur) =>
+                    updateCategory(cur, c.id, (x) => ({
+                    ...x,
+                    status: x.status === "Active" ? "Draft" : "Active",
+                    }))
+                ),
+            },
+            {
+                label: "Delete",
+                icon: Trash2Icon,
+                variant: "destructive",
+                confirm: {
+                    title: (c) => `Delete "${c.name}"?`,
+                    description: (c) =>
+                        c.subRows?.length
+                        ? `This also deletes its ${c.subRows.length} sub-categor${c.subRows.length === 1 ? "y" : "ies"} and can't be undone.`
+                        : "This can't be undone.",
+                    confirmLabel: "Delete",
+                },
+                onSelect: (c) =>
+                setRows((cur) => removeCategories(cur, new Set([c.id]))),
+            },
+        ],
+        []
     )
-  }
 
-  return (
-    <>
-      {/* page title with the create button on the same line */}
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 className="font-(family-name:--font-serif) text-3xl tracking-tight">
-            Categories
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Browse the category tree and pick a category.
-          </p>
-        </div>
-        <Button
-          onClick={() => setCreateOpen(true)}
-          className="h-9 gap-1.5 rounded-lg bg-ink! px-4 text-[13px] text-white! hover:bg-ink/90!"
-        >
-          <PlusIcon className="size-4" />
-          Create category
-        </Button>
-      </div>
+    const options = flatten(rows)
 
-      <CategoryCreateDialog
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-        parents={options}
-        existingNames={options.map((o) => o.name)}
-        onAddParent={handleAddParent}
-        onCreate={handleCreate}
-      />
+    // adds a top-level category from the "Add new parent" button and returns its id
+    function handleAddParent(name: string) {
+        const id = `${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now().toString(36)}`
+        setRows((current) => [
+            ...current,
+            { id, name, products: 0, status: "Active" },
+        ])
+        return id
+    }
 
-      {/* edit popup: name + status of the chosen category */}
-      <CategoryCreateDialog
-        mode="edit"
-        open={editing !== null}
-        onOpenChange={(open) => !open && setEditing(null)}
-        parents={options}
-        existingNames={options
-          .filter((o) => o.id !== editing?.id)
-          .map((o) => o.name)}
-        initial={
-          editing ? { name: editing.name, status: editing.status } : undefined
-        }
-        onCreate={({ name, status }) => {
-          if (!editing) return
-          setRows((cur) =>
-            updateCategory(cur, editing.id, (c) => ({ ...c, name, status }))
-          )
-        }}
-      />
+    function handleCreate({ name, parentId, status }: NewCategory) {
+        const id = `${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now().toString(36)}`
+        setRows((current) =>
+            addCategory(current, parentId, { id, name, products: 0, status })
+        )
+    }
 
-      <Card size="sm" className="ring-gold/25">
-        <CardHeader>
-          <CardTitle className="font-(family-name:--font-serif) text-base font-normal">
-            Category tree
-          </CardTitle>
-          <CardDescription className="block truncate text-xs">
-            {selected.length
-              ? `${selected.length} selected: ${selected.map((c) => c.name).join(", ")}`
-              : "Tick a parent to select all of its sub-categories."}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <DataTable
-            columns={columns}
-            data={rows}
-            selection
-            exports={["copy", "csv", "excel", "pdf", "print"]}
-            exportFileName="categories"
-            exportTitle="Categories"
-            getSubRows={(c) => c.subRows}
-            getRowId={(c) => c.id}
-            rowActions={rowActions}
-            onDeleteSelected={(deleted) => {
-              const ids = new Set(deleted.map((c) => c.id))
-              setRows((current) => removeCategories(current, ids))
-              setSelected([])
-            }}
-            onSelectionChange={setSelected}
-            pageSizes={[10, 20]}
-          />
-        </CardContent>
-      </Card>
-    </>
-  )
+    return (
+        <>
+            {/* page title with the create button on the same line */}
+            <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                    <h2 className="font-(family-name:--font-serif) text-3xl tracking-tight">
+                        Categories
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                        Browse the category tree and pick a category.
+                    </p>
+                </div>
+                <Button onClick={() => setCreateOpen(true)} className="h-9 gap-1.5 rounded-lg bg-ink! px-4 text-[13px] text-white! hover:bg-ink/90!">
+                    <PlusIcon className="size-4" />
+                    Create category
+                </Button>
+            </div>
+
+            <CategoryCreateDialog
+                open={createOpen}
+                onOpenChange={setCreateOpen}
+                parents={options}
+                existingNames={options.map((o) => o.name)}
+                onAddParent={handleAddParent}
+                onCreate={handleCreate}
+            />
+
+            {/* edit popup: name + status of the chosen category */}
+            <CategoryCreateDialog
+                mode="edit"
+                open={editing !== null}
+                onOpenChange={(open) => !open && setEditing(null)}
+                parents={options}
+                existingNames={options
+                .filter((o) => o.id !== editing?.id)
+                .map((o) => o.name)}
+                initial={
+                    editing ? { name: editing.name, status: editing.status } : undefined
+                }
+                onCreate={({ name, status }) => {
+                    if (!editing) return
+                    setRows((cur) =>
+                        updateCategory(cur, editing.id, (c) => ({ ...c, name, status }))
+                    )
+                }}
+            />
+
+            <Card size="sm" className="ring-gold/25">
+                <CardHeader>
+                    <CardTitle className="font-(family-name:--font-serif) text-base font-normal">
+                        Category tree
+                    </CardTitle>
+                    <CardDescription className="block truncate text-xs">
+                        {selected.length
+                        ? `${selected.length} selected: ${selected.map((c) => c.name).join(", ")}`
+                        : "Tick a parent to select all of its sub-categories."}
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <DataTable
+                        columns={columns}
+                        data={rows}
+                        selection
+                        exportFileName="categories"
+                        exportTitle="Categories"
+                        getSubRows={(c) => c.subRows}
+                        getRowId={(c) => c.id}
+                        rowActions={rowActions}
+                        onDeleteSelected={(deleted) => {
+                            const ids = new Set(deleted.map((c) => c.id))
+                            setRows((current) => removeCategories(current, ids))
+                            setSelected([])
+                        }}
+                        onSelectionChange={setSelected}
+                        pageSizes={[10, 20, 50]}
+                    />
+                </CardContent>
+            </Card>
+        </>
+    )
 }

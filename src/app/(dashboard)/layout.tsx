@@ -2,17 +2,10 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { MenuTrigger } from "@/components/menu-trigger"
 import { MotionProvider } from "@/components/motion"
 import { NotificationsMenu } from "@/components/notifications-menu"
+import { PageBreadcrumb } from "@/components/page-breadcrumb"
 import { ProfileMenu } from "@/components/profile-menu"
 import { ScrollArea } from "@/components/scroll-area"
 import { SearchCommand } from "@/components/search-command"
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
 import {
     SidebarInset,
     SidebarProvider,
@@ -32,17 +25,7 @@ export default function DashboardLayout({
                     <SidebarInset className="h-svh overflow-hidden bg-ivory">
                         <header className="z-10 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-white px-3 md:px-6">
                             <MenuTrigger className="rounded-full" />
-                            <Breadcrumb className="hidden sm:block">
-                                <BreadcrumbList>
-                                    <BreadcrumbItem>
-                                        <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
-                                    </BreadcrumbItem>
-                                    <BreadcrumbSeparator />
-                                    <BreadcrumbItem>
-                                        <BreadcrumbPage>Dashboard</BreadcrumbPage>
-                                    </BreadcrumbItem>
-                                </BreadcrumbList>
-                            </Breadcrumb>
+                            <PageBreadcrumb />
 
                             <div className="ml-auto flex items-center gap-2">
                                 <SearchCommand />

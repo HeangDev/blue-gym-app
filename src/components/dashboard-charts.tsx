@@ -55,34 +55,34 @@ const revenueConfig = {
   lastYear: { label: "Last year", theme: SERIES.orange },
 } satisfies ChartConfig
 
-const ordersData = [
-  { month: "Jan", orders: 820 },
-  { month: "Feb", orders: 910 },
-  { month: "Mar", orders: 1040 },
-  { month: "Apr", orders: 980 },
-  { month: "May", orders: 1120 },
-  { month: "Jun", orders: 1190 },
-  { month: "Jul", orders: 1260 },
-  { month: "Aug", orders: 1210 },
-  { month: "Sep", orders: 1340 },
-  { month: "Oct", orders: 1247 },
+const checkInData = [
+  { month: "Jan", checkIns: 7820 },
+  { month: "Feb", checkIns: 8110 },
+  { month: "Mar", checkIns: 8640 },
+  { month: "Apr", checkIns: 8420 },
+  { month: "May", checkIns: 9050 },
+  { month: "Jun", checkIns: 9330 },
+  { month: "Jul", checkIns: 9710 },
+  { month: "Aug", checkIns: 9580 },
+  { month: "Sep", checkIns: 10240 },
+  { month: "Oct", checkIns: 10480 },
 ]
 
-const ordersConfig = {
-  orders: { label: "Orders", theme: SERIES.blue },
+const checkInConfig = {
+  checkIns: { label: "Check-ins", theme: SERIES.blue },
 } satisfies ChartConfig
 
-const channelData = [
-  { channel: "online", sales: 54, fill: "var(--color-online)" },
-  { channel: "store", sales: 31, fill: "var(--color-store)" },
-  { channel: "wholesale", sales: 15, fill: "var(--color-wholesale)" },
+const planData = [
+  { plan: "basic", members: 38, fill: "var(--color-basic)" },
+  { plan: "pro", members: 41, fill: "var(--color-pro)" },
+  { plan: "premium", members: 21, fill: "var(--color-premium)" },
 ]
 
-const channelConfig = {
-  sales: { label: "Sales" },
-  online: { label: "Online", theme: SERIES.blue },
-  store: { label: "In-store", theme: SERIES.orange },
-  wholesale: { label: "Wholesale", theme: SERIES.aqua },
+const planConfig = {
+  members: { label: "Members" },
+  basic: { label: "Basic", theme: SERIES.blue },
+  pro: { label: "Pro", theme: SERIES.orange },
+  premium: { label: "Premium", theme: SERIES.aqua },
 } satisfies ChartConfig
 
 export function DashboardCharts() {
@@ -91,9 +91,9 @@ export function DashboardCharts() {
       <Reveal className="lg:col-span-2">
       <Card size="sm" className="h-full ring-gold/25">
         <CardHeader>
-          <CardTitle className="font-(family-name:--font-serif) text-base font-normal">Revenue over time</CardTitle>
+          <CardTitle className="font-(family-name:--font-serif) text-base font-normal">Membership revenue</CardTitle>
           <CardDescription className="text-xs">
-            Monthly revenue in $K, this year vs last year.
+            Monthly membership revenue in $K, this year vs last year.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -146,31 +146,31 @@ export function DashboardCharts() {
       <Reveal delay={0.1}>
       <Card size="sm" className="h-full ring-gold/25">
         <CardHeader>
-          <CardTitle className="font-(family-name:--font-serif) text-base font-normal">Sales by channel</CardTitle>
-          <CardDescription className="text-xs">Share of total sales this month.</CardDescription>
+          <CardTitle className="font-(family-name:--font-serif) text-base font-normal">Members by plan</CardTitle>
+          <CardDescription className="text-xs">Share of active members per plan.</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={channelConfig} className="mx-auto h-56 w-full">
+          <ChartContainer config={planConfig} className="mx-auto h-56 w-full">
             <PieChart accessibilityLayer>
               <ChartTooltip
-                content={<ChartTooltipContent nameKey="channel" hideLabel />}
+                content={<ChartTooltipContent nameKey="plan" hideLabel />}
               />
               <Pie
-                data={channelData}
-                dataKey="sales"
-                nameKey="channel"
+                data={planData}
+                dataKey="members"
+                nameKey="plan"
                 innerRadius={48}
                 outerRadius={74}
                 paddingAngle={2}
                 stroke="var(--background)"
                 strokeWidth={2}
               >
-                {channelData.map((d) => (
-                  <Cell key={d.channel} fill={d.fill} />
+                {planData.map((d) => (
+                  <Cell key={d.plan} fill={d.fill} />
                 ))}
               </Pie>
               <ChartLegend
-                content={<ChartLegendContent nameKey="channel" />}
+                content={<ChartLegendContent nameKey="plan" />}
               />
             </PieChart>
           </ChartContainer>
@@ -181,14 +181,14 @@ export function DashboardCharts() {
       <Reveal className="lg:col-span-3">
       <Card size="sm" className="ring-gold/25">
         <CardHeader>
-          <CardTitle className="font-(family-name:--font-serif) text-base font-normal">Orders per month</CardTitle>
-          <CardDescription className="text-xs">Completed orders, last 10 months.</CardDescription>
+          <CardTitle className="font-(family-name:--font-serif) text-base font-normal">Check-ins per month</CardTitle>
+          <CardDescription className="text-xs">Total member visits, last 10 months.</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={ordersConfig} className="h-40 w-full">
+          <ChartContainer config={checkInConfig} className="h-40 w-full">
             <BarChart
               accessibilityLayer
-              data={ordersData}
+              data={checkInData}
               margin={{ left: 4, right: 12, top: 4 }}
             >
               <CartesianGrid vertical={false} strokeDasharray="3 3" />
@@ -204,8 +204,8 @@ export function DashboardCharts() {
                 content={<ChartTooltipContent hideLabel={false} />}
               />
               <Bar
-                dataKey="orders"
-                fill="var(--color-orders)"
+                dataKey="checkIns"
+                fill="var(--color-checkIns)"
                 radius={[4, 4, 0, 0]}
                 maxBarSize={28}
               />

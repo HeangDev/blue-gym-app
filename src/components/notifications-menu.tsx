@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import {
   AlertTriangleIcon,
   BellIcon,
@@ -139,12 +140,12 @@ export function NotificationsMenu() {
           ))}
         </ul>
         <DropdownMenuSeparator className="my-0" />
-        <button
-          type="button"
-          className="w-full px-3 py-2 text-center text-xs font-medium text-gold-dark transition-colors hover:bg-muted"
+        <Link
+          href="/notifications"
+          className="block w-full px-3 py-2 text-center text-xs font-medium text-gold-dark transition-colors hover:bg-muted"
         >
           View all notifications
-        </button>
+        </Link>
       </DropdownMenuContent>
     </DropdownMenu>
   )

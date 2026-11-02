@@ -63,6 +63,8 @@ type DataTableProps<TData> = {
   renderSubComponent?: (row: Row<TData>) => ReactNode
   /** Stable row ids (keeps selection when sorting/filtering). */
   getRowId?: (row: TData) => string
+  /** Show a filter control for each column that sets `meta.filter`. */
+  showColumnFilters?: boolean
   /** Export buttons to show: copy, csv, excel, pdf, print. */
   exports?: ExportType[]
   exportFileName?: string
@@ -85,6 +87,7 @@ export function DataTable<TData>({
   getSubRows,
   renderSubComponent,
   getRowId,
+  showColumnFilters,
   exports,
   exportFileName,
   exportTitle,
@@ -205,6 +208,7 @@ export function DataTable<TData>({
       <DataTableToolbar
         table={table}
         searchPlaceholder={searchPlaceholder}
+        columnFilters={showColumnFilters}
         exports={exports}
         exportFileName={exportFileName}
         exportTitle={exportTitle}
@@ -229,6 +233,7 @@ export function DataTable<TData>({
                   <TableRow
                     data-state={row.getIsSelected() ? "selected" : undefined}
                     className={cn(
+                      "animate-in fade-in duration-300",
                       "border-border/70 hover:bg-ivory data-[state=selected]:bg-gold/10",
                       // sub rows sit on a faint tint so main rows stand out
                       row.depth > 0 && "bg-ivory/60"

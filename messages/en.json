@@ -4,7 +4,145 @@
         "username": "Username",
         "password": "Password",
         "loginButton": "Log In",
+        "signingIn": "Signing in...",
         "forgotPassword": "Forgot Password?",
-        "errorMessage": "Invalid username or password."
+        "errorMessage": "Invalid username or password.",
+        "usernameRequired": "Please enter your username.",
+        "passwordRequired": "Please enter your password.",
+        "showPassword": "Show password",
+        "hidePassword": "Hide password",
+        "rememberMe": "Remember me",
+        "welcome": "Welcome back",
+        "subtitle": "Sign in to manage your gym."
+    },
+    "SettingPage": {
+        "title": "Settings",
+        "subtitle": "Manage your gym profile, notifications and account security.",
+        "generalTab": {
+            "title": "General",
+            "content": {
+                "title": "Gym profile",
+                "subtitle": "This information appears on invoices and member emails.",
+                "form": {
+                    "gymName": "Gym name",
+                    "gymEmail": "Gym email",
+                    "gymPhone": "Gym phone",
+                    "gymAddress": "Gym address",
+                    "saveButton": "Save changes"
+                }
+            }
+        },
+        "notificationsTab": {
+            "title": "Notifications",
+            "content1": {
+                "title": "App notifications",
+                "subtitle": "Choose which updates appear in the app's notification bell.",
+                "list1": {
+                    "title": "Daily check-in summary",
+                    "subtitle": "A recap of member visits every evening."
+                },
+                "list2": {
+                    "title": "Membership expiring",
+                    "subtitle": "Alert when memberships are about to expire."
+                },
+                "list3": {
+                    "title": "Payments received",
+                    "subtitle": "Notify for each successful payment."
+                },
+                "list4": {
+                    "title": "Failed payments",
+                    "subtitle": "Notify when a card is declined."
+                },
+                "list5": {
+                    "title": "Low equipment stock",
+                    "subtitle": "Warn when supplies run low."
+                }
+            },
+            "content2": {
+                "title": "Telegram report",
+                "subtitle": "Send the day's report to a Telegram chat whenever the gym closes.",
+                "list1": {
+                    "title": "Send report when the gym closes",
+                    "subtitle": "Check-ins, new members and payments for the day."
+                }
+            }
+        },
+        "securityTab": {
+            "content1": {
+                "title": "Change password",
+                "subtitle": "Use a strong password you don't use anywhere else.",
+                "form": {
+                    "currentPassword": "Current password",
+                    "newPassword": "New password",
+                    "confirmNewPassword": "Confirm new password",
+                    "saveButton": "Save changes"
+                }
+            }
+        }
+    },
+    "SettingsPage": {
+        "title": "Settings",
+        "subtitle": "Manage your gym profile, notifications and account security.",
+        "sections": "Settings sections",
+        "tabGeneral": "General",
+        "tabNotifications": "Notifications",
+        "tabSecurity": "Security",
+        "save": "Save changes",
+        "saved": "Saved",
+        "profileTitle": "Gym profile",
+        "profileDesc": "This information appears on invoices and member emails.",
+        "gymName": "Gym name",
+        "gymNameRequired": "Please enter the gym name.",
+        "contactEmail": "Contact email",
+        "phone": "Phone",
+        "address": "Address",
+        "appNotifTitle": "App notifications",
+        "appNotifDesc": "Choose which updates appear in the app's notification bell.",
+        "notif": {
+            "checkins": {
+                "title": "Daily check-in summary",
+                "note": "A recap of member visits every evening."
+            },
+            "renewals": {
+                "title": "Membership expiring",
+                "note": "Alert when memberships are about to expire."
+            },
+            "payments": {
+                "title": "Payments received",
+                "note": "Notify for each successful payment."
+            },
+            "failed": {
+                "title": "Failed payments",
+                "note": "Notify when a card is declined."
+            },
+            "stock": {
+                "title": "Low equipment stock",
+                "note": "Warn when supplies run low."
+            }
+        },
+        "tgTitle": "Telegram report",
+        "tgDesc": "Send the day's report to a Telegram chat whenever the gym closes.",
+        "tgToggle": "Send report when the gym closes",
+        "tgToggleNote": "Check-ins, new members and payments for the day.",
+        "tgToggleAria": "Send report to Telegram when the gym closes",
+        "botToken": "Bot token",
+        "botTokenRequired": "Please enter the bot token.",
+        "chatId": "Chat ID",
+        "chatIdRequired": "Please enter the chat ID.",
+        "closingTime": "Closing time",
+        "closingNote": "The report is sent at this time, in your gym's time zone.",
+        "passwordTitle": "Change password",
+        "passwordDesc": "Use a strong password you don't use anywhere else.",
+        "currentPassword": "Current password",
+        "newPassword": "New password",
+        "confirmPassword": "Confirm new password",
+        "currentRequired": "Please enter your current password.",
+        "minLength": "Use at least 8 characters.",
+        "mismatch": "Passwords do not match."
+    },
+    "ProfileMenu": {
+        "language": "Language",
+        "settings": "Settings",
+        "logout": "Logout"
     }
 }

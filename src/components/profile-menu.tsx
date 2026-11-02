@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useLocale } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { ChevronDownIcon, LanguagesIcon, LogOutIcon, SettingsIcon } from "lucide-react"
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -29,6 +29,7 @@ const languages = [
 
 export function ProfileMenu() {
   const locale = useLocale()
+  const t = useTranslations("ProfileMenu")
   const router = useRouter()
   const [logoutOpen, setLogoutOpen] = useState(false)
 
@@ -74,7 +75,7 @@ export function ProfileMenu() {
         <DropdownMenuSub>
           <DropdownMenuSubTrigger className="rounded-md px-2 py-1.5">
             <LanguagesIcon />
-            Language
+            {t("language")}
           </DropdownMenuSubTrigger>
           <DropdownMenuSubContent className="w-40 rounded-xl p-1.5 font-(family-name:--font-serif)">
             <DropdownMenuRadioGroup value={locale} onValueChange={changeLanguage}>
@@ -90,7 +91,7 @@ export function ProfileMenu() {
         <DropdownMenuItem asChild className="rounded-md px-2 py-1.5">
           <Link href={settingsItem.href}>
             <SettingsIcon />
-            Settings
+            {t("settings")}
           </Link>
         </DropdownMenuItem>
 
@@ -101,7 +102,7 @@ export function ProfileMenu() {
           onSelect={() => setLogoutOpen(true)}
         >
           <LogOutIcon />
-          Logout
+          {t("logout")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

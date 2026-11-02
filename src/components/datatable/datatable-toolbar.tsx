@@ -1,6 +1,6 @@
 "use client"
 
-// Global filter (search all columns) + per-column filters + reset.
+// Global search (all columns) + optional per-column filters + reset.
 import { type Table } from "@tanstack/react-table"
 import { SearchIcon, XIcon } from "lucide-react"
 
@@ -23,6 +23,7 @@ const ALL = "__all__"
 export function DataTableToolbar<TData>({
   table,
   searchPlaceholder = "Search all columns...",
+  columnFilters: showColumnFilters,
   exports,
   exportFileName = "export",
   exportTitle = "Export",
@@ -30,17 +31,20 @@ export function DataTableToolbar<TData>({
 }: {
   table: Table<TData>
   searchPlaceholder?: string
+  /** Show the filter controls of columns that set `meta.filter`. */
+  columnFilters?: boolean
   exports?: ExportType[]
   exportFileName?: string
   exportTitle?: string
   onDeleteSelected?: (rows: TData[]) => void
 }) {
   const globalFilter = (table.getState().globalFilter as string) ?? ""
-  const columnFilters = table.getState().columnFilters
-  const filterable = table
-    .getAllLeafColumns()
-    .filter((c) => c.columnDef.meta?.filter)
-  const hasFilters = columnFilters.length > 0 || globalFilter !== ""
+  const filterable = showColumnFilters
+    ? table.getAllLeafColumns().filter((c) => c.columnDef.meta?.filter)
+    : []
+  const hasFilters =
+    globalFilter !== "" ||
+    (showColumnFilters && table.getState().columnFilters.length > 0)
 
   return (
     <div className="flex flex-wrap items-center gap-1.5">

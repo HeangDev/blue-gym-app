@@ -14,6 +14,40 @@ body {
   overflow-x: hidden;
 }
 
+/* Khmer UI: Battambang for every Khmer glyph when the language is Khmer */
+html:lang(km),
+html:lang(km) body {
+  font-family: var(--font-khmer), sans-serif;
+}
+
+/* The Latin fonts (Playfair, Geist, JetBrains Mono) have no Khmer glyphs, so
+   headings and body text fell back to a random system font. Point every font
+   variable at Battambang while the language is Khmer. */
+html:lang(km) {
+  --font-serif: var(--font-khmer);
+  --font-geist-sans: var(--font-khmer);
+  --font-mono: var(--font-khmer);
+}
+
+/* Khmer stacks vowels and marks above and below the letters: tight line
+   height clips them and negative letter-spacing makes them collide. */
+html:lang(km) :is(h1, h2, h3, h4, p, label, span, li, a, button, td, th, dt, dd) {
+  line-height: 1.55;
+}
+
+/* Khmer glyphs are drawn smaller than Latin ones at the same font size. */
+html:lang(km) .text-base { font-size: 1rem; }
+html:lang(km) .text-xs { font-size: 0.8125rem; }
+html:lang(km) .text-sm,
+html:lang(km) .text-\[13px\] { font-size: 0.875rem; }
+html:lang(km) .text-\[11px\] { font-size: 0.75rem; }
+
+html:lang(km) .tracking-tight,
+html:lang(km) .tracking-wide,
+html:lang(km) .tracking-wider {
+  letter-spacing: normal;
+}
+
 body {
   min-height: 100%;
   display: flex;

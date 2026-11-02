@@ -1,6 +1,6 @@
 import { DashboardCharts } from "@/components/dashboard-charts"
 import { Reveal } from "@/components/motion"
-import { OrdersTable } from "@/components/orders-table"
+import { RecentCheckIns } from "@/components/recent-checkins"
 import { SummaryCards } from "@/components/summary-cards"
 
 export default function DashboardPage() {
@@ -9,7 +9,7 @@ export default function DashboardPage() {
       <div>
         <h2 className="font-(family-name:--font-serif) text-3xl tracking-tight">Dashboard</h2>
         <p className="text-sm text-muted-foreground">
-          Overview of your business at a glance.
+          Overview of your gym at a glance.
         </p>
       </div>
 
@@ -18,7 +18,7 @@ export default function DashboardPage() {
       <DashboardCharts />
 
       <Reveal>
-        <OrdersTable />
+        <RecentCheckIns />
       </Reveal>
     </>
   )

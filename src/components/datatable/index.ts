@@ -1,4 +1,5 @@
 export { DataTable } from "./datatable"
+export { DataTableSkeleton } from "./datatable-skeleton"
 export { DataTableColumnHeader } from "./datatable-column-header"
 export { DataTablePagination } from "./datatable-pagination"
 export { DataTableToolbar } from "./datatable-toolbar"

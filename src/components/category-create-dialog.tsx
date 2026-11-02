@@ -39,12 +39,15 @@ export function CategoryCreateDialog({
   initial,
   onCreate,
   onAddParent,
+  parentsLoading,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   parents: ParentOption[]
   /** Creates a new top-level (parent) category and returns its id. */
   onAddParent?: (name: string) => string
+  /** Parent options are still loading. */
+  parentsLoading?: boolean
   /** Names that are already taken (leave out the edited category's own name). */
   existingNames: string[]
   /** "edit" changes an existing category's name and status. */
@@ -98,7 +101,7 @@ export function CategoryCreateDialog({
           </DialogHeader>
 
           <div className="grid gap-1.5">
-            <Label htmlFor="category-name">Name</Label>
+            <Label htmlFor="category-name" required>Name</Label>
             <Input
               id="category-name"
               value={name}
@@ -125,6 +128,7 @@ export function CategoryCreateDialog({
                 value={parent}
                 onChange={setParent}
                 options={parents}
+                loading={parentsLoading}
                 existingNames={existingNames}
                 onAddParent={(name) => onAddParent?.(name) ?? TOP_LEVEL}
               />
