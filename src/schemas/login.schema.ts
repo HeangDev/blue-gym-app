@@ -1,6 +1,5 @@
 import { z } from "zod"
 
-// Takes the translator so error messages follow the active language.
 export function createLoginSchema(t: (key: "usernameRequired" | "passwordRequired") => string) {
     return z.object({
         username: z.string().trim().min(1, t("usernameRequired")),

@@ -30,7 +30,7 @@ export function LogoutDialog({
 
     return (
         <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent className="gap-0 rounded-3xl border-0 bg-ivory! px-7 pt-8 pb-6 shadow-[0_0_60px_-8px_rgb(184_151_90/0.55),0_20px_50px_-20px_rgb(0_0_0/0.35)] ring-1 ring-gold/30 sm:max-w-[21rem]!">
+            <AlertDialogContent className="gap-0 rounded-3xl border-0 bg-ivory! px-7 pt-8 pb-6 shadow-[0_0_60px_-8px_rgb(184_151_90/0.55),0_20px_50px_-20px_rgb(0_0_0/0.35)] ring-1 ring-gold/30 sm:max-w-84!">
                 <button
                     type="button"
                     aria-label="Close"

@@ -20,7 +20,7 @@ export default function DashboardLayout({
     return (
         <MotionProvider>
             <TooltipProvider>
-                <SidebarProvider defaultOpen={false} className="font-[family-name:var(--font-geist-sans)]">
+                <SidebarProvider defaultOpen={false} className="font-(family-name:--font-geist-sans)">
                     <AppSidebar />
                     <SidebarInset className="h-svh overflow-hidden bg-ivory">
                         <header className="z-10 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-white px-3 md:px-6">

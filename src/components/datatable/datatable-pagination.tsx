@@ -1,6 +1,6 @@
 "use client"
 
-// Pagination: result count, rows-per-page, page x of y, first/prev/next/last.
+// Pagination: rows-per-page, page x of y, first/prev/next/last.
 import { type Table } from "@tanstack/react-table"
 import {
   ChevronLeftIcon,
@@ -21,54 +21,40 @@ import {
 export function DataTablePagination<TData>({
   table,
   pageSizes,
-  showSelection = false,
 }: {
   table: Table<TData>
   pageSizes: number[]
-  showSelection?: boolean
 }) {
   const { pageIndex, pageSize } = table.getState().pagination
   const total = table.getFilteredRowModel().rows.length
-  const from = total === 0 ? 0 : pageIndex * pageSize + 1
-  const to = Math.min((pageIndex + 1) * pageSize, total)
 
   return (
     <div className="flex flex-col items-stretch gap-2.5 text-xs sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-      <p className="hidden text-muted-foreground sm:block" aria-live="polite">
-        {total === 0 ? "0 results" : `Showing ${from}–${to} of ${total}`}
-        {showSelection && (
-          <span className="ml-2 inline-block min-w-24 text-foreground tabular-nums">
-            · {table.getSelectedRowModel().flatRows.length} selected
-          </span>
-        )}
-      </p>
-
-      <div className="flex items-center justify-between gap-4 sm:flex-wrap sm:justify-end">
-        <div className="hidden items-center gap-2 sm:flex">
-          <span className="text-muted-foreground">Rows per page</span>
-          <Select
-            value={String(pageSize)}
-            onValueChange={(v) => table.setPageSize(Number(v))}
+      <div className="hidden items-center gap-2 sm:flex">
+        <span className="text-muted-foreground">Rows per page</span>
+        <Select
+          value={String(pageSize)}
+          onValueChange={(v) => table.setPageSize(Number(v))}
+        >
+          <SelectTrigger
+            size="sm"
+            aria-label="Rows per page"
+            className="w-16"
           >
-            <SelectTrigger
-              size="sm"
-              aria-label="Rows per page"
-              className="w-16"
-            >
-              {/* set explicitly: the select can't read its items until it is
-                  opened, so the value would be blank on first paint */}
-              <SelectValue>{pageSize}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {pageSizes.map((s) => (
-                <SelectItem key={s} value={String(s)}>
-                  {s}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
+            {/* set explicitly: the select can't read its items until it is
+                opened, so the value would be blank on first paint */}
+            <SelectValue>{pageSize}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {pageSizes.map((s) => (
+              <SelectItem key={s} value={String(s)}>
+                {s}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex items-center justify-between gap-4 sm:flex-wrap sm:justify-end">
         <span className="order-2 text-center text-muted-foreground sm:order-0">
           Page {total === 0 ? 0 : pageIndex + 1} of {table.getPageCount()}
         </span>

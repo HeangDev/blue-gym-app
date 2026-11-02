@@ -413,7 +413,6 @@ export function DataTable<TData>({
       <DataTablePagination
         table={table}
         pageSizes={pageSizes}
-        showSelection={Boolean(selection)}
       />
 
     </div>

@@ -2,12 +2,13 @@ import {
     Layers,
     UserGroup,
     LayoutDashboardIcon,
-    PackageIcon,
+    Tag,
     SettingsIcon,
-    ShoppingCartIcon,
+    FolderTree,
     UsersIcon,
     Bell,
     ClipboardClock,
+    TicketPercent,
 } from "lucide-react"
 
 export const navGroups = [
@@ -22,14 +23,15 @@ export const navGroups = [
         items: [
             { title: "Users", href: "/users", icon: UsersIcon, badge: "8" },
             { title: "Members", href: "/members", icon: UserGroup },
-            { title: "Categories", href: "/categories", icon: ShoppingCartIcon },
-            { title: "Products", href: "/products", icon: PackageIcon },
+            { title: "Categories", href: "/categories", icon: FolderTree },
+            { title: "Products", href: "/products", icon: Tag },
         ],
     },
     {
         label: "Other",
         items: [
             { title: "Plans", href: "/plans", icon: Layers },
+            { title: "Promotions", href: "/promotions", icon: TicketPercent },
             { title: "Notifications", href: "/notifications", icon: Bell },
             { title: "Audit Logs", href: "/audit_logs", icon: ClipboardClock },
         ],
