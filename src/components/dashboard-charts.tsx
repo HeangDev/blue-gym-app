@@ -91,7 +91,7 @@ export function DashboardCharts() {
       <Reveal className="lg:col-span-2">
       <Card size="sm" className="h-full ring-gold/25">
         <CardHeader>
-          <CardTitle className="font-(family-name:--font-serif) text-base font-normal">Membership revenue</CardTitle>
+          <CardTitle className="font-serif text-base font-normal">Membership revenue</CardTitle>
           <CardDescription className="text-xs">
             Monthly membership revenue in $K, this year vs last year.
           </CardDescription>
@@ -146,7 +146,7 @@ export function DashboardCharts() {
       <Reveal delay={0.1}>
       <Card size="sm" className="h-full ring-gold/25">
         <CardHeader>
-          <CardTitle className="font-(family-name:--font-serif) text-base font-normal">Members by plan</CardTitle>
+          <CardTitle className="font-serif text-base font-normal">Members by plan</CardTitle>
           <CardDescription className="text-xs">Share of active members per plan.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -181,7 +181,7 @@ export function DashboardCharts() {
       <Reveal className="lg:col-span-3">
       <Card size="sm" className="ring-gold/25">
         <CardHeader>
-          <CardTitle className="font-(family-name:--font-serif) text-base font-normal">Check-ins per month</CardTitle>
+          <CardTitle className="font-serif text-base font-normal">Check-ins per month</CardTitle>
           <CardDescription className="text-xs">Total member visits, last 10 months.</CardDescription>
         </CardHeader>
         <CardContent>

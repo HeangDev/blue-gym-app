@@ -62,7 +62,7 @@ export function ProfileMenu() {
       <DropdownMenuContent
         align="end"
         sideOffset={8}
-        className="w-52 rounded-xl p-1.5 font-(family-name:--font-serif) shadow-lg"
+        className="w-52 rounded-xl p-1.5 font-serif shadow-lg"
       >
         <div className="px-2 pt-1.5 pb-2">
           <p className="text-base leading-tight">Admin</p>
@@ -77,7 +77,7 @@ export function ProfileMenu() {
             <LanguagesIcon />
             {t("language")}
           </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent className="w-40 rounded-xl p-1.5 font-(family-name:--font-serif)">
+          <DropdownMenuSubContent className="w-40 rounded-xl p-1.5 font-serif">
             <DropdownMenuRadioGroup value={locale} onValueChange={changeLanguage}>
               {languages.map((l) => (
                 <DropdownMenuRadioItem key={l.code} value={l.code}>

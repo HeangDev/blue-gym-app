@@ -86,7 +86,7 @@ export function NotificationsMenu() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" sideOffset={8} className="w-80 p-0">
         <DropdownMenuLabel className="flex items-center justify-between px-3 py-2.5">
-          <span className="font-(family-name:--font-serif) text-base font-normal">
+          <span className="font-serif text-base font-normal">
             Notifications
             {unread > 0 && (
               <span className="ml-2 rounded-full bg-gold/15 px-1.5 py-0.5 font-sans text-[10px] font-medium text-gold-dark">

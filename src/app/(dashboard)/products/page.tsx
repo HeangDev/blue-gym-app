@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button"
 import {
     Card,
     CardContent,
-    CardDescription,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
@@ -138,7 +137,7 @@ export default function ProductsPage() {
             {/* page title with the create button on the same line */}
             <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
-                    <h2 className="font-(family-name:--font-serif) text-3xl tracking-tight">
+                    <h2 className="font-serif text-3xl tracking-tight">
                         Products
                     </h2>
                     <p className="text-sm text-muted-foreground">
@@ -158,7 +157,7 @@ export default function ProductsPage() {
 
             <Card size="sm" className="ring-gold/25">
                 <CardHeader>
-                    <CardTitle className="font-(family-name:--font-serif) text-base font-normal">
+                    <CardTitle className="font-serif text-base font-normal">
                         All products
                     </CardTitle>
                 </CardHeader>

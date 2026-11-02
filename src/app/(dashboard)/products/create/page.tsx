@@ -25,7 +25,7 @@ export default function CreateProductPage() {
                     <ArrowLeftIcon className="size-3.5" />
                     Back to products
                 </Link>
-                <h2 className="font-(family-name:--font-serif) text-3xl tracking-tight">
+                <h2 className="font-serif text-3xl tracking-tight">
                     Create product
                 </h2>
                 <p className="text-sm text-muted-foreground">

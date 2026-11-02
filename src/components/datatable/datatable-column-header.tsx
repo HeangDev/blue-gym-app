@@ -24,7 +24,7 @@ export function DataTableColumnHeader<TData, TValue>({
   return (
     <TableHead
       className={cn(
-        "h-9 px-3! font-(family-name:--font-serif) text-xs font-medium tracking-wide text-foreground",
+        "h-9 px-3! font-serif text-xs font-medium tracking-wide text-foreground",
         right && "text-right",
         column.id.startsWith("__") && column.id !== "__actions" && "w-10 pr-0!",
         column.id === "__actions" && "w-12"

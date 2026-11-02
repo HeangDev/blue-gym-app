@@ -142,7 +142,7 @@ export default function PlansPage() {
             {/* page title with the create button on the same line */}
             <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
-                    <h2 className="font-(family-name:--font-serif) text-3xl tracking-tight">
+                    <h2 className="font-serif text-3xl tracking-tight">
                         Plans
                     </h2>
                     <p className="text-sm text-muted-foreground">
@@ -182,7 +182,7 @@ export default function PlansPage() {
 
             <Card size="sm" className="ring-gold/25">
                 <CardHeader>
-                    <CardTitle className="font-(family-name:--font-serif) text-base font-normal">
+                    <CardTitle className="font-serif text-base font-normal">
                         All plans
                     </CardTitle>
                 </CardHeader>

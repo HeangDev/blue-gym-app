@@ -143,7 +143,7 @@ export default function MembersPage() {
     return (
         <>
             <div>
-                <h2 className="font-(family-name:--font-serif) text-3xl tracking-tight">
+                <h2 className="font-serif text-3xl tracking-tight">
                     Members
                 </h2>
                 <p className="text-sm text-muted-foreground">
@@ -153,7 +153,7 @@ export default function MembersPage() {
 
             <Card size="sm" className="ring-gold/25">
                 <CardHeader>
-                    <CardTitle className="font-(family-name:--font-serif) text-base font-normal">
+                    <CardTitle className="font-serif text-base font-normal">
                         All members
                     </CardTitle>
                     <CardDescription className="text-xs">

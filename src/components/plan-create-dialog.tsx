@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -54,16 +54,19 @@ export function PlanCreateDialog({
   const [errors, setErrors] = useState<Errors>({})
   const editing = mode === "edit"
 
-  // fresh form every time the dialog opens
-  useEffect(() => {
-    if (!open) return
+  // fresh form every time the dialog opens (reset while rendering)
+  const openKey = open ? (initial?.id ?? "new") : null
+  const [seenKey, setSeenKey] = useState<string | null>(null)
+  if (openKey !== seenKey) {
+    setSeenKey(openKey)
+    if (openKey !== null) {
     setName(initial?.name ?? "")
     setBilling(initial?.billing ?? "Monthly")
     setPrice(initial ? String(initial.price) : "")
     setStatus(initial?.status ?? "Active")
     setErrors({})
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, initial?.id])
+    }
+  }
 
   function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -98,7 +101,7 @@ export function PlanCreateDialog({
       <DialogContent className="border-border bg-white! font-(family-name:--font-geist-sans) sm:max-w-sm">
         <form onSubmit={submit} noValidate autoComplete="off" className="grid gap-4">
           <DialogHeader>
-            <DialogTitle className="font-(family-name:--font-serif) text-xl font-normal">
+            <DialogTitle className="font-serif text-xl font-normal">
               {editing ? "Edit plan" : "Create plan"}
             </DialogTitle>
             <DialogDescription>

@@ -69,7 +69,7 @@ export function DataTablePagination<TData>({
           </Select>
         </div>
 
-        <span className="order-2 text-center text-muted-foreground sm:order-none">
+        <span className="order-2 text-center text-muted-foreground sm:order-0">
           Page {total === 0 ? 0 : pageIndex + 1} of {table.getPageCount()}
         </span>
 
@@ -88,7 +88,7 @@ export function DataTablePagination<TData>({
           <Button
             variant="outline"
             size="icon-sm"
-            className="order-1 size-8! rounded-lg! border-border! bg-white! hover:border-gold/50! sm:order-none"
+            className="order-1 size-8! rounded-lg! border-border! bg-white! hover:border-gold/50! sm:order-0"
             aria-label="Previous page"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
@@ -98,7 +98,7 @@ export function DataTablePagination<TData>({
           <Button
             variant="outline"
             size="icon-sm"
-            className="order-3 size-8! rounded-lg! border-border! bg-white! hover:border-gold/50! sm:order-none"
+            className="order-3 size-8! rounded-lg! border-border! bg-white! hover:border-gold/50! sm:order-0"
             aria-label="Next page"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}

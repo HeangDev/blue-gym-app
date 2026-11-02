@@ -162,6 +162,9 @@ export function DataTable<TData>({
     return next
   }
 
+  // TanStack Table returns functions the React Compiler can't memoize; the
+  // table is not passed to memoized children, so this is safe
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns: allColumns,
@@ -256,7 +259,7 @@ export function DataTable<TData>({
           }
           autoHide={false}
           className={cn(
-            "datatable-scroll [&_.simplebar-content]:pb-3 [&_[data-slot=table-container]]:overflow-visible",
+            "datatable-scroll [&_.simplebar-content]:pb-3 **:data-[slot=table-container]:overflow-visible",
             // no scrollbars on the skeleton
             loading && "[&_.simplebar-track]:hidden [&_.simplebar-content]:pb-0"
           )}
@@ -266,7 +269,7 @@ export function DataTable<TData>({
           <Table
             className={cn(
               "text-[13px]",
-              !hasHiddenColumns && "min-w-[36rem]"
+              !hasHiddenColumns && "min-w-xl"
             )}
           >
             <TableHeader

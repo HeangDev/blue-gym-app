@@ -60,7 +60,7 @@ export function DataTableDelete<TData>({
       <AlertDialog open={open} onOpenChange={setOpen}>
         <AlertDialogContent className="border-gold/25 bg-ivory! sm:max-w-sm">
           <AlertDialogHeader className="text-left sm:text-left">
-            <AlertDialogTitle className="font-(family-name:--font-serif) text-xl font-normal">
+            <AlertDialogTitle className="font-serif text-xl font-normal">
               Delete {count} {count === 1 ? "row" : "rows"}?
             </AlertDialogTitle>
             <AlertDialogDescription>

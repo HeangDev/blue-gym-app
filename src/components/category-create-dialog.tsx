@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -61,14 +61,18 @@ export function CategoryCreateDialog({
   const [status, setStatus] = useState<NewCategory["status"]>("Active")
   const [error, setError] = useState("")
 
-  // fresh form every time the dialog opens
-  useEffect(() => {
-    if (!open) return
-    setName(initial?.name ?? "")
-    setParent(TOP_LEVEL)
-    setStatus(initial?.status ?? "Active")
-    setError("")
-  }, [open, initial?.name, initial?.status])
+  // fresh form every time the dialog opens (reset while rendering)
+  const openKey = open ? `${initial?.name ?? ""}|${initial?.status ?? ""}` : null
+  const [seenKey, setSeenKey] = useState<string | null>(null)
+  if (openKey !== seenKey) {
+    setSeenKey(openKey)
+    if (openKey !== null) {
+      setName(initial?.name ?? "")
+      setParent(TOP_LEVEL)
+      setStatus(initial?.status ?? "Active")
+      setError("")
+    }
+  }
 
   function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -90,7 +94,7 @@ export function CategoryCreateDialog({
       <DialogContent className="border-border bg-white! font-(family-name:--font-geist-sans) sm:max-w-sm">
         <form onSubmit={submit} autoComplete="off" className="grid gap-4">
           <DialogHeader>
-            <DialogTitle className="font-(family-name:--font-serif) text-xl font-normal">
+            <DialogTitle className="font-serif text-xl font-normal">
               {editing ? "Edit category" : "Create category"}
             </DialogTitle>
             <DialogDescription>

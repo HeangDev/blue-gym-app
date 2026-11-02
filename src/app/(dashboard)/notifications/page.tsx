@@ -89,7 +89,7 @@ export default function NotificationsPage() {
             {/* title with the bulk actions on the same line */}
             <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
-                    <h2 className="font-(family-name:--font-serif) text-3xl tracking-tight">
+                    <h2 className="font-serif text-3xl tracking-tight">
                         Notifications
                     </h2>
                     <p className="text-sm text-muted-foreground">
@@ -180,7 +180,7 @@ export default function NotificationsPage() {
                         <span className="flex size-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
                             <BellOffIcon className="size-5" />
                         </span>
-                        <p className="font-(family-name:--font-serif) text-lg">
+                        <p className="font-serif text-lg">
                             Nothing here
                         </p>
                         <p className="text-sm text-muted-foreground">

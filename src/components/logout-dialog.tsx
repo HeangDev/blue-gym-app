@@ -46,21 +46,21 @@ export function LogoutDialog({
                         className="mx-auto size-8 fill-gold/20 text-gold-dark"
                         strokeWidth={1.75}
                     />
-                    <AlertDialogTitle className="mt-4 w-full text-center font-(family-name:--font-serif) text-lg leading-snug font-medium tracking-tight whitespace-nowrap">
+                    <AlertDialogTitle className="mt-4 w-full text-center font-serif text-lg leading-snug font-medium tracking-tight whitespace-nowrap">
                         Do you really want to log out?
                     </AlertDialogTitle>
-                    <AlertDialogDescription className="mt-1.5 w-full text-center font-(family-name:--font-serif) text-sm text-muted-foreground whitespace-nowrap">
+                    <AlertDialogDescription className="mt-1.5 w-full text-center font-serif text-sm text-muted-foreground whitespace-nowrap">
                         You will need to sign in again.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
 
                 <AlertDialogFooter className="mx-0! mt-6 mb-0! grid grid-cols-2 gap-3 border-0 bg-transparent p-0 sm:grid-cols-2">
                     <AlertDialogAction
-                        className="h-9 rounded-lg bg-ink! font-(family-name:--font-serif) text-sm font-medium tracking-wide text-white! shadow-md hover:bg-ink/90!"
+                        className="h-9 rounded-lg bg-ink! font-serif text-sm font-medium tracking-wide text-white! shadow-md hover:bg-ink/90!"
                         onClick={logout}>
                         Yes
                     </AlertDialogAction>
-                    <AlertDialogCancel className="h-9 rounded-lg border-0 bg-gold/20! font-(family-name:--font-serif) text-sm font-medium tracking-wide text-gold-dark! shadow-none hover:bg-gold/30!">
+                    <AlertDialogCancel className="h-9 rounded-lg border-0 bg-gold/20! font-serif text-sm font-medium tracking-wide text-gold-dark! shadow-none hover:bg-gold/30!">
                         No
                     </AlertDialogCancel>
                 </AlertDialogFooter>

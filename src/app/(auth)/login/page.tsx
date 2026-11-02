@@ -35,8 +35,10 @@ export default function LoginPage() {
         try {
             const saved = localStorage.getItem(REMEMBER_KEY)
             if (saved) {
+                /* eslint-disable react-hooks/set-state-in-effect -- localStorage only exists in the browser, so this can't be a state initializer (hydration mismatch) */
                 setUsername(saved)
                 setRemember(true)
+                /* eslint-enable react-hooks/set-state-in-effect */
             }
         } catch {
             // storage blocked: just skip remembering

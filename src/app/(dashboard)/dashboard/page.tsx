@@ -5,7 +5,7 @@ export default function DashboardPage() {
     return (
         <>
             <div>
-                <h2 className="font-(family-name:--font-serif) text-3xl tracking-tight">Dashboard</h2>
+                <h2 className="font-serif text-3xl tracking-tight">Dashboard</h2>
                 <p className="text-sm text-muted-foreground">
                     Overview of your gym at a glance.
                 </p>

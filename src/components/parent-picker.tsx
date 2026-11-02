@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useId, useState } from "react"
 import { Command as CommandPrimitive } from "cmdk"
 import {
   ChevronDownIcon,
@@ -51,6 +51,7 @@ export function ParentPicker({
   /** Options are still loading: shows placeholders instead of a flash of "None". */
   loading?: boolean
 }) {
+  const listId = useId()
   const [open, setOpen] = useState(false)
   const [adding, setAdding] = useState(false)
   const [newName, setNewName] = useState("")
@@ -93,6 +94,7 @@ export function ParentPicker({
           type="button"
           role="combobox"
           aria-expanded={open}
+          aria-controls={listId}
           aria-busy={loading}
           aria-label="Parent category"
           className="flex h-9 w-full cursor-pointer items-center justify-between gap-2 rounded-lg border border-border bg-white px-3 text-sm font-(family-name:--font-geist-sans) transition-colors outline-none hover:border-gold/50 focus-visible:border-gold focus-visible:ring-2 focus-visible:ring-gold/25 data-[state=open]:border-gold"
@@ -128,7 +130,7 @@ export function ParentPicker({
             />
           </div>
 
-          <CommandList className="max-h-56 p-1">
+          <CommandList id={listId} className="max-h-56 p-1">
             {loading && (
               <div className="grid gap-1 p-1" aria-label="Loading categories">
                 {[0, 1, 2, 3].map((i) => (

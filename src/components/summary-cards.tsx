@@ -112,7 +112,7 @@ export function SummaryCards() {
                                 <s.icon className="size-3 text-gold-dark" />
                                 <span className="truncate">{s.title}</span>
                             </p>
-                            <div className="font-(family-name:--font-serif) text-xl leading-tight tracking-tight">
+                            <div className="font-serif text-xl leading-tight tracking-tight">
                                 <CountUp
                                     to={s.value}
                                     prefix={s.prefix}

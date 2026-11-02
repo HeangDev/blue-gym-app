@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { EyeIcon, EyeOffIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -69,9 +69,13 @@ export function UserEditDialog<Role extends string, Status extends string>({
   const [status, setStatus] = useState<Status>(statuses[0])
   const [errors, setErrors] = useState<Errors>({})
 
-  // fresh form every time the dialog opens
-  useEffect(() => {
-    if (!open) return
+  // fresh form every time the dialog opens (reset while rendering, which
+  // React prefers over an effect: no extra render with stale values)
+  const openKey = open ? (initial?.id ?? "new") : null
+  const [seenKey, setSeenKey] = useState<string | null>(null)
+  if (openKey !== seenKey) {
+    setSeenKey(openKey)
+    if (openKey !== null) {
     setName(initial?.name ?? "")
     setUsername(initial?.username ?? "")
     setEmail(initial?.email ?? "")
@@ -82,8 +86,8 @@ export function UserEditDialog<Role extends string, Status extends string>({
     setRole(initial?.role ?? roles[roles.length - 1])
     setStatus(initial?.status ?? statuses[0])
     setErrors({})
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, initial?.id])
+    }
+  }
 
   function clear(field: keyof Errors) {
     setErrors((c) => ({ ...c, [field]: undefined }))
@@ -137,7 +141,7 @@ export function UserEditDialog<Role extends string, Status extends string>({
       <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto border-border bg-white! font-(family-name:--font-geist-sans) sm:max-w-md">
         <form onSubmit={submit} noValidate autoComplete="off" className="grid gap-4">
           <DialogHeader>
-            <DialogTitle className="font-(family-name:--font-serif) text-xl font-normal">
+            <DialogTitle className="font-serif text-xl font-normal">
               {creating ? "Create user" : "Edit user"}
             </DialogTitle>
             <DialogDescription>

@@ -87,7 +87,7 @@ export function BranchSwitcher() {
         <DialogContent className="gap-0 overflow-hidden border-border bg-white! p-0 font-(family-name:--font-geist-sans) sm:max-w-md">
           {/* header: title + search */}
           <DialogHeader className="gap-1 px-4 pt-5 pb-4 sm:px-5">
-            <DialogTitle className="font-(family-name:--font-serif) text-xl font-normal tracking-tight">
+            <DialogTitle className="font-serif text-xl font-normal tracking-tight">
               Switch branch
             </DialogTitle>
             <DialogDescription>

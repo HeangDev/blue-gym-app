@@ -32,7 +32,7 @@ const tabs: { id: TabId; labelKey: "tabGeneral" | "tabNotifications" | "tabSecur
     { id: "security", labelKey: "tabSecurity", icon: ShieldCheckIcon },
 ]
 
-const cardTitle = "font-(family-name:--font-serif) text-base font-normal"
+const cardTitle = "font-serif text-base font-normal"
 
 // Switch built from a button, so it is keyboard and screen-reader friendly.
 function Toggle({
@@ -377,7 +377,7 @@ export default function SettingsPage() {
     return (
         <>
             <div>
-                <h2 className="font-(family-name:--font-serif) text-3xl tracking-tight">
+                <h2 className="font-serif text-3xl tracking-tight">
                     {t("title")}
                 </h2>
                 <p className="text-sm text-muted-foreground">

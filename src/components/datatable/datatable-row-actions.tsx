@@ -124,7 +124,7 @@ export function RowActionConfirm<TData>({
     <AlertDialog open={Boolean(pending)} onOpenChange={(o) => !o && onCancel()}>
       <AlertDialogContent className="border-gold/25 bg-ivory! sm:max-w-sm">
         <AlertDialogHeader className="text-left sm:text-left">
-          <AlertDialogTitle className="font-(family-name:--font-serif) text-xl font-normal">
+          <AlertDialogTitle className="font-serif text-xl font-normal">
             {confirm && row ? text(confirm.title, row) : ""}
           </AlertDialogTitle>
           <AlertDialogDescription>

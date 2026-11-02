@@ -180,7 +180,7 @@ export default function UsersPage() {
         <>
             <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
-                    <h2 className="font-(family-name:--font-serif) text-3xl tracking-tight">
+                    <h2 className="font-serif text-3xl tracking-tight">
                         Users
                     </h2>
                     <p className="text-sm text-muted-foreground">
@@ -195,7 +195,7 @@ export default function UsersPage() {
 
             <Card size="sm" className="ring-gold/25">
                 <CardHeader>
-                    <CardTitle className="font-(family-name:--font-serif) text-base font-normal">
+                    <CardTitle className="font-serif text-base font-normal">
                         All users
                     </CardTitle>
                 </CardHeader>

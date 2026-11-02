@@ -131,7 +131,7 @@ export function ProductForm({
     >
       <Card size="sm" className="ring-gold/25">
         <CardHeader>
-          <CardTitle className="font-(family-name:--font-serif) text-base font-normal">
+          <CardTitle className="font-serif text-base font-normal">
             Product details
           </CardTitle>
           <CardDescription className="text-xs">
@@ -262,7 +262,7 @@ export function ProductForm({
 
       <Card size="sm" className="ring-gold/25">
         <CardHeader>
-          <CardTitle className="font-(family-name:--font-serif) text-base font-normal">
+          <CardTitle className="font-serif text-base font-normal">
             Product image
           </CardTitle>
           <CardDescription className="text-xs">
