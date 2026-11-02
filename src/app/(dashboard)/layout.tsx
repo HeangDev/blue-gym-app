@@ -1,11 +1,11 @@
-import { AppSidebar } from "@/components/app-sidebar"
+import { AppSidebar } from "@/components/layout/app-sidebar"
 import { MenuTrigger } from "@/components/menu-trigger"
 import { MotionProvider } from "@/components/motion"
-import { NotificationsMenu } from "@/components/notifications-menu"
-import { PageBreadcrumb } from "@/components/page-breadcrumb"
+import { NotificationsMenu } from "@/components/layout/header/notifications-menu"
+import { PageBreadcrumb } from "@/components/layout/header/page-breadcrumb"
 import { ProfileMenu } from "@/components/profile-menu"
 import { ScrollArea } from "@/components/scroll-area"
-import { SearchCommand } from "@/components/search-command"
+import { SearchCommand } from "@/components/layout/header/search-command"
 import {
     SidebarInset,
     SidebarProvider,

@@ -11,7 +11,7 @@ import {
 import SimpleBar from "simplebar-react"
 import "simplebar-react/dist/simplebar.min.css"
 
-import { BranchSwitcher } from "@/components/branch-switcher"
+import { BranchSwitcher } from "@/components/layout/sidebar/branch-switcher"
 import { LogoutDialog } from "@/components/logout-dialog"
 import { navGroups } from "@/lib/nav"
 import {

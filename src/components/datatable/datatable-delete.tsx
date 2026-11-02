@@ -29,7 +29,7 @@ export function DataTableDelete<TData>({
 
   const selected = table.getSelectedRowModel().flatRows
   const count = selected.length
-  // keep the button in the layout (just invisible) so the toolbar never reflows
+  // not rendered at all until a row is ticked (stays while its dialog is open)
   const hidden = count === 0 && !open
 
   function confirm() {
@@ -43,7 +43,7 @@ export function DataTableDelete<TData>({
       <Button
         variant="destructive"
         size="sm"
-        className={cn("h-8 rounded-lg text-[13px]", hidden && "invisible")}
+        className={cn("h-8 w-full rounded-lg text-[13px] sm:w-auto", hidden && "hidden")}
         disabled={hidden}
         aria-hidden={hidden || undefined}
         tabIndex={hidden ? -1 : undefined}

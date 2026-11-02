@@ -1,17 +1,18 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { CopyIcon, ToggleRightIcon, Trash2Icon } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+import { PencilIcon, PlusIcon, ToggleRightIcon, Trash2Icon } from "lucide-react"
 import { type ColumnDef } from "@tanstack/react-table"
 
 import { DataTable, StatusBadge, type RowAction } from "@/components/datatable"
 import {
     Card,
     CardContent,
-    CardDescription,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { UserEditDialog, type UserFields } from "@/components/user-edit-dialog"
 
 type Role = "Admin" | "Manager" | "Staff"
 type Status = "Active" | "Suspended" | "Invited"
@@ -19,7 +20,9 @@ type Status = "Active" | "Suspended" | "Invited"
 type User = {
     id: string
     name: string
+    username: string
     email: string
+    phone: string
     role: Role
     lastLogin: string // ISO yyyy-mm-dd
     status: Status
@@ -28,7 +31,7 @@ type User = {
 const roles: Role[] = ["Admin", "Manager", "Staff"]
 const statuses: Status[] = ["Active", "Suspended", "Invited"]
 
-const users: User[] = [
+const seedUsers: Omit<User, "username" | "phone">[] = [
     { id: "U-001", name: "Sim Kimheang", email: "simkimheang4@gmail.com", role: "Admin", lastLogin: "2026-11-02", status: "Active" },
     { id: "U-002", name: "Sokunthea Pov", email: "sokunthea.pov@example.com", role: "Manager", lastLogin: "2026-11-01", status: "Active" },
     { id: "U-003", name: "Vannak Hout", email: "vannak.hout@example.com", role: "Staff", lastLogin: "2026-10-30", status: "Active" },
@@ -42,6 +45,18 @@ const users: User[] = [
     { id: "U-011", name: "Theary Seng", email: "theary.seng@example.com", role: "Staff", lastLogin: "2026-10-05", status: "Invited" },
     { id: "U-012", name: "Bunthoeun Ek", email: "bunthoeun.ek@example.com", role: "Staff", lastLogin: "2026-10-27", status: "Active" },
 ]
+
+// sample data: derive a username and phone number for each seed user
+const users: User[] = seedUsers.map((u, i) => ({
+    ...u,
+    username: u.email.split("@")[0].replace(/[^a-z0-9]+/gi, "_").toLowerCase(),
+    phone: `012 ${345 + i} ${String(100 + i * 7).padStart(3, "0")}`,
+}))
+
+// the saved row keeps everything except the password
+const profile = ({ name, username, email, phone, role, status }: UserFields<Role, Status>) => ({
+    name, username, email, phone, role, status,
+})
 
 const statusTone = {
     Active: "success",
@@ -66,9 +81,19 @@ const columns: ColumnDef<User>[] = [
         meta: { filter: { type: "text", label: "User" } },
     },
     {
+        accessorKey: "username",
+        header: "Username",
+        meta: { hideBelow: "md" },
+    },
+    {
         accessorKey: "email",
         header: "Email",
         meta: { hideBelow: "md" },
+    },
+    {
+        accessorKey: "phone",
+        header: "Phone",
+        meta: { hideBelow: "lg" },
     },
     {
         accessorKey: "role",
@@ -104,14 +129,24 @@ const columns: ColumnDef<User>[] = [
 
 export default function UsersPage() {
     const [rows, setRows] = useState(users)
+    // the user being edited (opens the edit popup)
+    const [editing, setEditing] = useState<User | null>(null)
+    const [createOpen, setCreateOpen] = useState(false)
+    // sample data loads instantly, so fake a short load to show the skeleton;
+    // with a real API, use its loading flag instead
+    const [loading, setLoading] = useState(true)
+    useEffect(() => {
+        const t = setTimeout(() => setLoading(false), 800)
+        return () => clearTimeout(t)
+    }, [])
 
     // custom row actions: each handler gets the user of the clicked row
     const rowActions = useMemo<RowAction<User>[]>(
         () => [
             {
-                label: "Copy email",
-                icon: CopyIcon,
-                onSelect: (u) => navigator.clipboard.writeText(u.email),
+                label: "Edit",
+                icon: PencilIcon,
+                onSelect: (u) => setEditing(u),
             },
             {
                 label: (u) => (u.status === "Suspended" ? "Reactivate" : "Suspend"),
@@ -143,13 +178,19 @@ export default function UsersPage() {
 
     return (
         <>
-            <div>
-                <h2 className="font-(family-name:--font-serif) text-3xl tracking-tight">
-                    Users
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                    Search, filter and manage who can sign in.
-                </p>
+            <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                    <h2 className="font-(family-name:--font-serif) text-3xl tracking-tight">
+                        Users
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                        Search, filter and manage who can sign in.
+                    </p>
+                </div>
+                <Button onClick={() => setCreateOpen(true)} className="h-9 gap-1.5 rounded-lg bg-ink! px-4 text-[13px] text-white! hover:bg-ink/90!">
+                    <PlusIcon className="size-4" />
+                    Create user
+                </Button>
             </div>
 
             <Card size="sm" className="ring-gold/25">
@@ -157,18 +198,13 @@ export default function UsersPage() {
                     <CardTitle className="font-(family-name:--font-serif) text-base font-normal">
                         All users
                     </CardTitle>
-                    <CardDescription className="text-xs">
-                        {rows.length} users.
-                    </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <DataTable
+                        loading={loading}
                         columns={columns}
                         data={rows}
                         selection
-                        exports={["copy", "csv", "excel", "pdf", "print"]}
-                        exportFileName="users"
-                        exportTitle="Users"
                         getRowId={(u) => u.id}
                         rowActions={rowActions}
                         onDeleteSelected={(deleted) => {
@@ -179,6 +215,39 @@ export default function UsersPage() {
                     />
                 </CardContent>
             </Card>
+
+            <UserEditDialog
+                mode="create"
+                open={createOpen}
+                onOpenChange={setCreateOpen}
+                roles={roles}
+                statuses={statuses}
+                existing={rows}
+                // the password would be sent to the server here; the table never keeps it
+                onSave={(f) =>
+                    setRows((cur) => {
+                        const next = Math.max(0, ...cur.map((r) => Number(r.id.slice(2)))) + 1
+                        const id = `U-${String(next).padStart(3, "0")}`
+                        const today = new Date().toISOString().slice(0, 10)
+                        return [{ id, lastLogin: today, ...profile(f) }, ...cur]
+                    })
+                }
+            />
+
+            <UserEditDialog
+                open={editing !== null}
+                onOpenChange={(open) => !open && setEditing(null)}
+                roles={roles}
+                statuses={statuses}
+                initial={editing ?? undefined}
+                existing={rows}
+                onSave={(f) => {
+                    if (!editing) return
+                    setRows((cur) =>
+                        cur.map((r) => (r.id === editing.id ? { ...r, ...profile(f) } : r))
+                    )
+                }}
+            />
         </>
     )
 }

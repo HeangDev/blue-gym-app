@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils"
 
 // gold checked state
 const CHECKBOX_CLASS =
-  "data-checked:border-gold data-checked:bg-gold data-checked:text-white dark:data-checked:bg-gold"
+  "data-[state=checked]:border-gold data-[state=checked]:bg-gold data-[state=checked]:text-white dark:data-[state=checked]:bg-gold"
 
 const INDETERMINATE_CLASS =
   "data-[state=indeterminate]:border-gold data-[state=indeterminate]:bg-gold data-[state=indeterminate]:text-white data-[state=indeterminate]:[&_svg]:hidden"

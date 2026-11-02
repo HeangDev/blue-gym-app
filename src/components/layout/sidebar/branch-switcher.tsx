@@ -86,7 +86,7 @@ export function BranchSwitcher() {
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="gap-0 overflow-hidden border-border bg-white! p-0 font-(family-name:--font-geist-sans) sm:max-w-md">
           {/* header: title + search */}
-          <DialogHeader className="gap-1 px-5 pt-5 pb-4">
+          <DialogHeader className="gap-1 px-4 pt-5 pb-4 sm:px-5">
             <DialogTitle className="font-(family-name:--font-serif) text-xl font-normal tracking-tight">
               Switch branch
             </DialogTitle>
@@ -109,7 +109,7 @@ export function BranchSwitcher() {
           <ul
             role="radiogroup"
             aria-label="Branches"
-            className="flex max-h-[22rem] flex-col gap-2 overflow-y-auto px-5 pb-4"
+            className="flex max-h-[min(22rem,50dvh)] flex-col gap-2 overflow-y-auto px-4 pb-4 sm:px-5"
           >
             {filtered.map((branch) => {
               const selected = branch.id === pendingId
@@ -154,7 +154,7 @@ export function BranchSwitcher() {
                           </span>
                         )}
                       </span>
-                      <span className="mt-0.5 flex items-center gap-3 text-xs text-muted-foreground">
+                      <span className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <MapPinIcon className="size-3" />
                           {branch.city}
@@ -189,7 +189,7 @@ export function BranchSwitcher() {
           </ul>
 
           {/* footer: what will happen + actions */}
-          <div className="flex items-center justify-between gap-3 border-t border-border bg-ivory px-5 py-3">
+          <div className="flex flex-col gap-3 border-t border-border bg-ivory px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
             <p className="min-w-0 truncate text-xs text-muted-foreground" aria-live="polite">
               {pendingId === activeId ? (
                 "You're working in this branch."
@@ -202,7 +202,7 @@ export function BranchSwitcher() {
                 </>
               )}
             </p>
-            <div className="flex shrink-0 gap-2">
+            <div className="grid shrink-0 grid-cols-2 gap-2 sm:flex">
               <Button variant="outline" onClick={() => setOpen(false)}>
                 Cancel
               </Button>

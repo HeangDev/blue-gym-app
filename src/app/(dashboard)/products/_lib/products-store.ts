@@ -11,6 +11,9 @@ export type Product = {
     price: number
     stock: number
     status: ProductStatus
+    /** Picture of the product: an image URL, or a data URL while there is no upload API. */
+    image?: string
+    description?: string
 }
 
 export type NewProduct = Omit<Product, "id">

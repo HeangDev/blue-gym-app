@@ -25,6 +25,9 @@ import {
   type SortingState,
 } from "@tanstack/react-table"
 
+import SimpleBar from "simplebar-react"
+import "simplebar-react/dist/simplebar.min.css"
+
 import { DataTableColumnHeader } from "./datatable-column-header"
 import { ExpandButton, getExpanderColumn } from "./datatable-expander"
 import { DataTablePagination } from "./datatable-pagination"
@@ -40,6 +43,7 @@ import { type ExportType } from "./datatable-export"
 import { DataTableToolbar } from "./datatable-toolbar"
 import "./types"
 
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -73,6 +77,8 @@ type DataTableProps<TData> = {
   onDeleteSelected?: (rows: TData[]) => void
   /** A "..." menu on every row; each action runs your handler. */
   rowActions?: RowAction<TData>[]
+  /** Shows placeholder rows (built from this table's own columns) while data loads. */
+  loading?: boolean
 }
 
 // Wires up the table state (sorting, filtering, pagination, selection,
@@ -93,6 +99,7 @@ export function DataTable<TData>({
   exportTitle,
   onDeleteSelected,
   rowActions,
+  loading,
 }: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -191,11 +198,26 @@ export function DataTable<TData>({
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    // jump back to page 1 whenever filters change
-    autoResetPageIndex: true,
+    // TanStack's own auto-reset queues a state update during render, which
+    // React warns about ("hasn't mounted yet"); we reset the page in an effect
+    autoResetPageIndex: false,
   })
 
   tableRef.current = table
+
+  // jump back to page 1 whenever the search, filters or sorting change
+  useEffect(() => {
+    table.setPageIndex(0)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [globalFilter, columnFilters, sorting])
+
+  // after deleting rows, don't stay on a page that no longer exists
+  const pageCount = table.getPageCount()
+  const pageIndex = table.getState().pagination.pageIndex
+  useEffect(() => {
+    if (pageCount > 0 && pageIndex >= pageCount) table.setPageIndex(pageCount - 1)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageCount, pageIndex])
   useEffect(() => {
     onSelectionChange?.(
       table.getSelectedRowModel().flatRows.map((r) => r.original)
@@ -205,6 +227,11 @@ export function DataTable<TData>({
 
   return (
     <div className="flex flex-col gap-2.5">
+      {/* while loading, the controls are visible but can't be used */}
+      <div
+        inert={loading || undefined}
+        className={cn("transition-opacity", loading && "opacity-60")}
+      >
       <DataTableToolbar
         table={table}
         searchPlaceholder={searchPlaceholder}
@@ -214,99 +241,161 @@ export function DataTable<TData>({
         exportTitle={exportTitle}
         onDeleteSelected={onDeleteSelected}
       />
+      </div>
 
       <div className="overflow-hidden rounded-lg border border-border bg-card">
-        <Table className="text-[13px]">
-          <TableHeader className="bg-ivory [&_tr]:border-gold/30">
-            {table.getHeaderGroups().map((group) => (
-              <TableRow key={group.id}>
-                {group.headers.map((header) => (
-                  <DataTableColumnHeader key={header.id} header={header} />
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <Fragment key={row.id}>
-                  <TableRow
-                    data-state={row.getIsSelected() ? "selected" : undefined}
-                    className={cn(
-                      "animate-in fade-in duration-300",
-                      "border-border/70 hover:bg-ivory data-[state=selected]:bg-gold/10",
-                      // sub rows sit on a faint tint so main rows stand out
-                      row.depth > 0 && "bg-ivory/60"
-                    )}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell
-                        key={cell.id}
-                        className={cn(
-                          "px-3! py-2!",
-                          cell.column.id.startsWith("__") && cell.column.id !== "__actions" && "w-10 pr-0!",
-                          cell.column.id === "__actions" && "w-12 text-right",
-                          cell.column.columnDef.meta?.align === "right" &&
-                            "text-right"
-                        )}
-                      >
-                        {treeMode && cell.column.id === firstDataColumnId ? (
-                          <div
-                            className="flex items-center gap-1.5"
-                            style={{ paddingLeft: row.depth * 24 }}
-                          >
-                            {inlineChevron && <ExpandButton row={row} />}
-                            <span
-                              className={cn(
-                                "font-normal",
-                                // main rows: full colour, sub rows: softer
-                                row.depth > 0
-                                  ? "text-foreground/70"
-                                  : "text-foreground"
-                              )}
-                            >
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
-                              )}
-                            </span>
-                          </div>
-                        ) : (
-                          flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                  {(renderSubComponent || hasHiddenColumns) && row.getIsExpanded() && (
-                    <TableRow className="border-border/70 bg-ivory hover:bg-ivory">
-                      <TableCell
-                        colSpan={row.getVisibleCells().length}
-                        className="border-l-2 border-gold/60 px-4! py-3!"
-                      >
-                        <div className="flex flex-col gap-2 py-0.5">
-                          <ResponsiveDetails row={row} />
-                          {renderSubComponent?.(row)}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </Fragment>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={allColumns.length}
-                  className="h-24 text-center text-muted-foreground"
-                >
-                  No results found.
-                </TableCell>
-              </TableRow>
+        {/* on small screens the table scrolls sideways inside SimpleBar; the
+            table container normally scrolls by itself, so switch that off */}
+        <SimpleBar
+          // SimpleBar has no height until it has measured itself, so while
+          // loading reserve the skeleton's height (header + rows) up front
+          style={
+            loading
+              ? { minHeight: 36 + table.getState().pagination.pageSize * 37 }
+              : undefined
+          }
+          autoHide={false}
+          className={cn(
+            "datatable-scroll [&_.simplebar-content]:pb-3 [&_[data-slot=table-container]]:overflow-visible",
+            // no scrollbars on the skeleton
+            loading && "[&_.simplebar-track]:hidden [&_.simplebar-content]:pb-0"
+          )}
+        >
+          {/* when columns collapse into the detail panel the table fits the
+              screen, so only force a minimum width if nothing was hidden */}
+          <Table
+            className={cn(
+              "text-[13px]",
+              !hasHiddenColumns && "min-w-[36rem]"
             )}
-          </TableBody>
-        </Table>
+          >
+            <TableHeader
+              inert={loading || undefined}
+              className="bg-ivory [&_tr]:border-gold/30"
+            >
+              {table.getHeaderGroups().map((group) => (
+                <TableRow key={group.id}>
+                  {group.headers.map((header) => (
+                    <DataTableColumnHeader key={header.id} header={header} />
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody aria-busy={loading || undefined}>
+              {loading ? (
+                // placeholder rows follow the real columns on this screen size
+                // and the current page size, so nothing jumps when data arrives
+                Array.from({ length: table.getState().pagination.pageSize }).map(
+                  (_, r) => (
+                    <TableRow key={r} className="border-border/70 hover:bg-transparent">
+                      {table.getVisibleLeafColumns().map((column, c) => (
+                        <TableCell
+                          key={column.id}
+                          className={cn(
+                            "px-3! py-2!",
+                            column.id.startsWith("__") && column.id !== "__actions" && "w-10 pr-0!",
+                            column.id === "__actions" && "w-12"
+                          )}
+                        >
+                          {column.id === "__select" || column.id === "__expander" ? (
+                            <Skeleton className="size-4" />
+                          ) : column.id === "__actions" ? (
+                            <Skeleton className="ml-auto size-5" />
+                          ) : (
+                            <Skeleton
+                              className={cn(
+                                "h-5",
+                                column.columnDef.meta?.align === "right" && "ml-auto"
+                              )}
+                              style={{ width: `${55 + ((r * 7 + c * 13) % 40)}%` }}
+                            />
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  )
+                )
+              ) : table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <Fragment key={row.id}>
+                    <TableRow
+                      data-state={row.getIsSelected() ? "selected" : undefined}
+                      className={cn(
+                        "animate-in fade-in duration-300",
+                        "border-border/70 hover:bg-ivory data-[state=selected]:bg-gold/10",
+                        // sub rows sit on a faint tint so main rows stand out
+                        row.depth > 0 && "bg-ivory/60"
+                      )}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell
+                          key={cell.id}
+                          className={cn(
+                            "px-3! py-2!",
+                            cell.column.id.startsWith("__") && cell.column.id !== "__actions" && "w-10 pr-0!",
+                            cell.column.id === "__actions" && "w-12 text-right",
+                            cell.column.columnDef.meta?.align === "right" &&
+                              "text-right"
+                          )}
+                        >
+                          {treeMode && cell.column.id === firstDataColumnId ? (
+                            <div
+                              className="flex items-center gap-1.5"
+                              style={{ paddingLeft: row.depth * 24 }}
+                            >
+                              {inlineChevron && <ExpandButton row={row} />}
+                              <span
+                                className={cn(
+                                  "font-normal",
+                                  // main rows: full colour, sub rows: softer
+                                  row.depth > 0
+                                    ? "text-foreground/70"
+                                    : "text-foreground"
+                                )}
+                              >
+                                {flexRender(
+                                  cell.column.columnDef.cell,
+                                  cell.getContext()
+                                )}
+                              </span>
+                            </div>
+                          ) : (
+                            flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                    {(renderSubComponent || hasHiddenColumns) && row.getIsExpanded() && (
+                      <TableRow className="border-border/70 bg-ivory hover:bg-ivory">
+                        <TableCell
+                          colSpan={row.getVisibleCells().length}
+                          className="border-l-2 border-gold/60 px-3! py-3! sm:px-4!"
+                        >
+                          <div className="flex min-w-0 flex-col gap-2 py-0.5 whitespace-normal">
+                            <ResponsiveDetails row={row} />
+                            {renderSubComponent?.(row)}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </Fragment>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={allColumns.length}
+                    className="h-24 text-center text-muted-foreground"
+                  >
+                    No results found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </SimpleBar>
       </div>
 
       <RowActionConfirm
@@ -323,6 +412,7 @@ export function DataTable<TData>({
         pageSizes={pageSizes}
         showSelection={Boolean(selection)}
       />
+
     </div>
   )
 }

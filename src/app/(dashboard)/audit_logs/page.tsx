@@ -158,9 +158,6 @@ export default function AuditLogsPage() {
                     <DataTable
                         columns={columns}
                         data={logs}
-                        exports={["csv", "excel", "pdf", "print"]}
-                        exportFileName="audit-logs"
-                        exportTitle="Audit logs"
                         getRowId={(l) => l.id}
                         rowActions={rowActions}
                         renderSubComponent={(row) => <LogDetails log={row.original} />}

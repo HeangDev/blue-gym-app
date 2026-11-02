@@ -1,12 +1,12 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import Link from "next/link"
-import { PencilIcon, PlusIcon, ToggleRightIcon, Trash2Icon } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { ImageIcon, PencilIcon, PlusIcon, ToggleRightIcon, Trash2Icon } from "lucide-react"
 import { type ColumnDef } from "@tanstack/react-table"
 
 import { DataTable, StatusBadge, type RowAction } from "@/components/datatable"
-import { ProductEditDialog } from "./_components/product-edit-dialog"
 import { Button } from "@/components/ui/button"
 import {
     Card,
@@ -16,7 +16,6 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import {
-    productCategories,
     productStatuses,
     removeProducts,
     updateProduct,
@@ -42,15 +41,27 @@ const currency = new Intl.NumberFormat("en-US", {
 
 const columns: ColumnDef<Product>[] = [
     {
-        accessorKey: "id",
-        header: "ID",
-        cell: ({ getValue }) => (
-            <span className="font-medium">{getValue<string>()}</span>
-        ),
-    },
-    {
-        accessorKey: "name",
+        // name and ID share one column; the value holds both so search finds either
+        id: "name",
+        accessorFn: (p) => `${p.name} ${p.id}`,
         header: "Product",
+        meta: { exportValue: (_v, p) => `${p.name} (${p.id})` },
+        cell: ({ row }) => (
+            <div className="flex items-center gap-3">
+                <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md border border-border bg-muted/50 text-muted-foreground">
+                    {row.original.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={row.original.image} alt="" className="size-full object-cover" />
+                    ) : (
+                        <ImageIcon className="size-4" />
+                    )}
+                </div>
+                <div className="leading-tight">
+                    <p className="font-medium">{row.original.name}</p>
+                    <p className="text-xs text-muted-foreground">{row.original.id}</p>
+                </div>
+            </div>
+        ),
     },
     {
         accessorKey: "category",
@@ -88,8 +99,7 @@ const columns: ColumnDef<Product>[] = [
 
 export default function ProductsPage() {
     const rows = useProducts()
-    // the product being edited (opens the edit popup)
-    const [editing, setEditing] = useState<Product | null>(null)
+    const router = useRouter()
 
     // custom row actions: each handler gets the product of the clicked row
     const rowActions = useMemo<RowAction<Product>[]>(
@@ -97,7 +107,7 @@ export default function ProductsPage() {
             {
                 label: "Edit",
                 icon: PencilIcon,
-                onSelect: (p) => setEditing(p),
+                onSelect: (p) => router.push(`/products/${p.id}/edit`),
             },
             {
                 label: (p) => (p.status === "Active" ? "Set as draft" : "Set as active"),
@@ -120,7 +130,7 @@ export default function ProductsPage() {
                 onSelect: (p) => removeProducts([p.id]),
             },
         ],
-        []
+        [router]
     )
 
     return (
@@ -145,15 +155,6 @@ export default function ProductsPage() {
                     </Link>
                 </Button>
             </div>
-
-            {/* edit popup: all details of the chosen product */}
-            <ProductEditDialog
-                product={editing}
-                onClose={() => setEditing(null)}
-                categories={productCategories}
-                existingNames={rows.filter((r) => r.id !== editing?.id).map((r) => r.name)}
-                onSave={(changes) => editing && updateProduct(editing.id, changes)}
-            />
 
             <Card size="sm" className="ring-gold/25">
                 <CardHeader>

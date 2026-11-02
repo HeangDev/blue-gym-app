@@ -60,15 +60,18 @@ export function ResponsiveDetails<TData>({ row }: { row: Row<TData> }) {
   if (hidden.length === 0) return null
 
   return (
-    <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1.5 text-sm">
+    <dl className="flex flex-col divide-y divide-border/60 text-[13px]">
       {hidden.map((cell) => {
         const header = cell.column.columnDef.header
         return (
-          <div key={cell.id} className="contents">
-            <dt className="text-muted-foreground">
+          <div
+            key={cell.id}
+            className="flex items-center justify-between gap-4 py-1.5 first:pt-0 last:pb-0"
+          >
+            <dt className="shrink-0 text-muted-foreground">
               {typeof header === "string" ? header : cell.column.id}
             </dt>
-            <dd>
+            <dd className="min-w-0 text-right">
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </dd>
           </div>

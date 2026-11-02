@@ -233,6 +233,20 @@ body {
 .simplebar-dragging .simplebar-track .simplebar-scrollbar::before {
   background: var(--color-gold-dark);
 }
+/* data tables: a thicker, always visible bar so it is easy to grab and drag */
+.datatable-scroll .simplebar-track.simplebar-horizontal,
+.datatable-scroll .simplebar-track.simplebar-horizontal:hover {
+  height: 12px;
+  background: color-mix(in oklab, var(--color-ink) 6%, transparent);
+  border-radius: 9999px;
+}
+.datatable-scroll .simplebar-track.simplebar-horizontal .simplebar-scrollbar::before {
+  top: 3px;
+  bottom: 3px;
+  opacity: 1;
+  background: color-mix(in oklab, var(--color-ink) 45%, transparent);
+}
+
 /* on the dark sidebar use a light thumb */
 [data-slot="sidebar-content"] .simplebar-track .simplebar-scrollbar::before {
   background: rgb(255 255 255 / 0.25);

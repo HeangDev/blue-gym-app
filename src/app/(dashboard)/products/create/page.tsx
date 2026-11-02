@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { ArrowLeftIcon } from "lucide-react"
 
 import { ProductForm } from "../_components/product-form"
-import { Card, CardContent } from "@/components/ui/card"
 import {
     addProduct,
     productCategories,
@@ -34,20 +33,16 @@ export default function CreateProductPage() {
                 </p>
             </div>
 
-            <Card size="sm" className="max-w-xl ring-gold/25">
-                <CardContent>
-                    <ProductForm
-                        categories={productCategories}
-                        existingNames={rows.map((r) => r.name)}
-                        submitLabel="Create product"
-                        onSubmit={(product) => {
-                            addProduct(product)
-                            router.push("/products")
-                        }}
-                        onCancel={() => router.push("/products")}
-                    />
-                </CardContent>
-            </Card>
+            <ProductForm
+                categories={productCategories}
+                existingNames={rows.map((r) => r.name)}
+                submitLabel="Create product"
+                onSubmit={(product) => {
+                    addProduct(product)
+                    router.push("/products")
+                }}
+                onCancel={() => router.push("/products")}
+            />
         </>
     )
 }
