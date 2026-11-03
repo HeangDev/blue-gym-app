@@ -44,8 +44,34 @@ export function createPromotionSchema({ others = [] }: { others?: string[] } = {
 export type PromotionFormValues = z.infer<ReturnType<typeof createPromotionSchema>>
 
 export const promotionMethods = ["Code", "Automatic"] as const
-export const promotionTargets = ["Order", "Shipping"] as const
+
+export const promotionMethodHints: Record<(typeof promotionMethods)[number], string> = {
+    Code: "Shoppers enter a promo code at checkout",
+    Automatic: "Applied automatically when eligible",
+}
+export const promotionTargets = [
+    "Membership Plan",
+    "Registration Fee",
+    "Membership Renewal",
+    "Products",
+    "Specific Product",
+    "Specific Member",
+] as const
+
+export const promotionTargetHints: Record<(typeof promotionTargets)[number], string> = {
+    "Membership Plan": "Membership registration or renewal",
+    "Registration Fee": "New member registration fee",
+    "Membership Renewal": "Existing member renewal",
+    Products: "Gym shop products",
+    "Specific Product": "Selected products",
+    "Specific Member": "Selected gym members",
+}
 export const promotionValueTypes = ["Percentage", "Fixed amount"] as const
+
+export const promotionValueTypeHints: Record<(typeof promotionValueTypes)[number], string> = {
+    Percentage: "Take a percent off, e.g. 20%",
+    "Fixed amount": "Take a flat amount off, e.g. $5",
+}
 
 const money = /^(?:0|[1-9]\d*)(?:\.\d{1,2})?$/
 

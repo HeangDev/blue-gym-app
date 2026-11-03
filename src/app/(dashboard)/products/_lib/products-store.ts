@@ -4,7 +4,17 @@ import { useSyncExternalStore } from "react"
 
 export type ProductStatus = "Active" | "Draft" | "Out of stock"
 
+export type ProductVariant = {
+    id: string
+    color: string
+    size: string
+    sku: string
+    price: number
+    inventory: number
+}
+
 export type Product = {
+    variants?: ProductVariant[]
     id: string
     name: string
     category: string

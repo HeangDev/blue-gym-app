@@ -31,6 +31,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
     return (
         <html lang="en" suppressHydrationWarning className={cn(geistSans.variable, geistMono.variable, "font-mono", jetbrainsMono.variable, playfair.variable, battambang.variable)}>
+            <head>
+                <script
+                    dangerouslySetInnerHTML={{
+                        __html: `try{var t=localStorage.getItem("theme")||"system";if(t==="dark"||(t==="system"&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}`,
+                    }}
+                />
+            </head>
             <body>
                 <Suspense fallback={null}>
                     <NextIntlClientProvider>

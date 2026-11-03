@@ -1,16 +1,17 @@
 "use client"
 
-import { useRef, useState } from "react"
-import { ImageIcon, UploadIcon, XIcon } from "lucide-react"
+import { useRef, useState, type ReactNode } from "react"
+import { CopyIcon, MoreHorizontalIcon, PlusIcon, Trash2Icon, XIcon } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -25,13 +26,16 @@ import {
   productStatuses,
   type NewProduct,
   type ProductStatus,
+  type ProductVariant,
 } from "../_lib/products-store"
+
+// borderless cell input: looks like plain text until focused
+const cellInput =
+  "h-8 border-transparent bg-transparent px-2 shadow-none hover:border-border focus-visible:border-ring"
 
 type Errors = {
   name?: string
   category?: string
-  price?: string
-  stock?: string
   image?: string
 }
 
@@ -42,33 +46,158 @@ const MAX_DESCRIPTION = 500
 const noSpinner =
   "[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 
-// The product fields with validation, as a full-width two-column layout.
-// Used by the create and edit pages.
+const statusHint: Record<ProductStatus, string> = {
+  Active: "Visible and available to buy.",
+  Draft: "Saved but hidden from shoppers.",
+  "Out of stock": "Visible, but can't be bought.",
+}
+
+const statusDot: Record<ProductStatus, string> = {
+  Active: "bg-emerald-500",
+  Draft: "bg-amber-500",
+  "Out of stock": "bg-red-500",
+}
+
+// Price cell: shows "$0.00" when idle, a plain number while typing.
+function PriceCell({
+  value,
+  onChange,
+}: {
+  value: number
+  onChange: (price: number) => void
+}) {
+  const [text, setText] = useState<string | null>(null)
+  return (
+    <Input
+      aria-label="Variant price"
+      inputMode="decimal"
+      className={`${cellInput} text-right`}
+      value={text ?? `$${value.toFixed(2)}`}
+      onFocus={() => setText(String(value))}
+      onChange={(e) => {
+        setText(e.target.value)
+        const n = Number(e.target.value)
+        if (Number.isFinite(n) && n >= 0) onChange(n)
+      }}
+      onBlur={() => setText(null)}
+    />
+  )
+}
+
+// A section card: a gray title bar, then a white box of rows.
+function Section({
+  title,
+  children,
+  className,
+}: {
+  title: string
+  children: ReactNode
+  className?: string
+}) {
+  return (
+    <Card size="sm" className={`bg-muted/40 ring-border ${className ?? ""}`}>
+      <CardHeader>
+        <CardTitle className="text-sm font-semibold">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
+  )
+}
+
+// A label + hint on the left, the control on the right, dashed line between rows.
+function Row({
+  label,
+  hint,
+  htmlFor,
+  error,
+  children,
+}: {
+  label: string
+  hint: string
+  htmlFor?: string
+  error?: string
+  children: ReactNode
+}) {
+  return (
+    <div className="grid gap-3 border-b border-dashed border-border px-6 py-4 last:border-b-0 sm:grid-cols-[1fr_2.3fr] sm:gap-8">
+      <div>
+        <Label htmlFor={htmlFor} className="text-sm font-semibold">
+          {label}
+        </Label>
+        <p className="mt-0.5 text-sm text-muted-foreground">{hint}</p>
+      </div>
+      <div className="grid content-start gap-1.5">
+        {children}
+        {error && <p className="text-xs text-destructive">{error}</p>}
+      </div>
+    </div>
+  )
+}
+
+// A stacked label + control, for the narrow side cards.
+function Field({
+  label,
+  htmlFor,
+  error,
+  children,
+}: {
+  label: string
+  htmlFor?: string
+  error?: string
+  children: ReactNode
+}) {
+  return (
+    <div className="grid content-start gap-1.5">
+      <Label htmlFor={htmlFor} className="text-sm font-semibold">
+        {label}
+      </Label>
+      {children}
+      {error && <p className="text-xs text-destructive">{error}</p>}
+    </div>
+  )
+}
+
+// The product fields with validation: General, Media and Variants on the left,
+// Status and Organization on the right. Used by the create and edit pages.
 export function ProductForm({
   categories,
   existingNames,
   initial,
-  submitLabel,
   onSubmit,
-  onCancel,
 }: {
   /** Categories to pick from. */
   categories: string[]
   /** Product names that are already taken (leave out the edited product). */
   existingNames: string[]
   initial?: NewProduct
-  submitLabel: string
   onSubmit: (product: NewProduct) => void
-  onCancel: () => void
 }) {
   const [name, setName] = useState(initial?.name ?? "")
   const [category, setCategory] = useState(initial?.category ?? "")
-  const [price, setPrice] = useState(initial ? String(initial.price) : "")
-  const [stock, setStock] = useState(initial ? String(initial.stock) : "")
-  const [status, setStatus] = useState<ProductStatus>(initial?.status ?? "Active")
+  const [status, setStatus] = useState<ProductStatus>(initial?.status ?? "Draft")
   const [image, setImage] = useState(initial?.image)
   const [description, setDescription] = useState(initial?.description ?? "")
   const [errors, setErrors] = useState<Errors>({})
+  const [variants, setVariants] = useState<ProductVariant[]>(initial?.variants ?? [])
+  const [dragging, setDragging] = useState(false)
+
+  function addVariant() {
+    setVariants((v) => [
+      ...v,
+      { id: crypto.randomUUID(), color: "", size: "", sku: "", price: 0, inventory: 0 },
+    ])
+  }
+  function duplicateVariant(id: string) {
+    setVariants((all) => {
+      const i = all.findIndex((x) => x.id === id)
+      if (i < 0) return all
+      const copy = { ...all[i], id: crypto.randomUUID() }
+      return [...all.slice(0, i + 1), copy, ...all.slice(i + 1)]
+    })
+  }
+  function patchVariant(id: string, changes: Partial<ProductVariant>) {
+    setVariants((v) => v.map((x) => (x.id === id ? { ...x, ...changes } : x)))
+  }
   const fileInput = useRef<HTMLInputElement>(null)
 
   // read the chosen picture into a data URL, so it can be previewed and saved
@@ -91,8 +220,6 @@ export function ProductForm({
   function submit(e: React.FormEvent) {
     e.preventDefault()
     const trimmed = name.trim()
-    const priceNum = Number(price)
-    const stockNum = Number(stock)
     const found: Errors = {}
 
     if (!trimmed) found.name = "Please enter a product name."
@@ -102,14 +229,17 @@ export function ProductForm({
 
     if (!category) found.category = "Please choose a category."
 
-    if (price.trim() === "") found.price = "Please enter a price."
-    else if (!Number.isFinite(priceNum) || priceNum < 0) found.price = "Enter a valid price."
-
-    if (stock.trim() === "") found.stock = "Please enter the stock."
-    else if (!Number.isInteger(stockNum) || stockNum < 0) found.stock = "Enter a whole number."
-
     setErrors(found)
     if (Object.keys(found).length) return
+
+    // price and stock come from the variants (lowest price, total inventory);
+    // with no variants the product keeps its previous values
+    const priceNum = variants.length
+      ? Math.min(...variants.map((v) => v.price))
+      : (initial?.price ?? 0)
+    const stockNum = variants.length
+      ? variants.reduce((sum, v) => sum + v.inventory, 0)
+      : (initial?.stock ?? 0)
 
     onSubmit({
       name: trimmed,
@@ -119,28 +249,26 @@ export function ProductForm({
       status,
       image,
       description: description.trim() || undefined,
+      variants: variants.length ? variants : undefined,
     })
   }
 
   return (
     <form
+      id="product-form"
       onSubmit={submit}
       noValidate
       autoComplete="off"
-      className="grid gap-4 lg:grid-cols-[1fr_22rem] lg:items-start"
+      className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]"
     >
-      <Card size="sm" className="ring-gold/25">
-        <CardHeader>
-          <CardTitle className="font-serif text-base font-normal">
-            Product details
-          </CardTitle>
-          <CardDescription className="text-xs">
-            Name, category, price, stock and a description.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2">
-          <div className="grid content-start gap-1.5 sm:col-span-2">
-            <Label htmlFor="product-name" required>Name</Label>
+      <div className="grid gap-4">
+        <Section title="General">
+          <Row
+            label="Name"
+            hint="Product display name."
+            htmlFor="product-name"
+            error={errors.name}
+          >
             <Input
               id="product-name"
               value={name}
@@ -152,101 +280,12 @@ export function ProductForm({
               autoFocus
               aria-invalid={Boolean(errors.name)}
             />
-            {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
-          </div>
-
-          <div className="grid content-start gap-1.5">
-            <Label required>Category</Label>
-            <Select
-              value={category}
-              onValueChange={(v) => {
-                setCategory(v)
-                setErrors((c) => ({ ...c, category: undefined }))
-              }}
-            >
-              <SelectTrigger
-                className="w-full"
-                aria-label="Category"
-                aria-invalid={Boolean(errors.category)}
-              >
-                <SelectValue placeholder="Choose a category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {c}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.category && (
-              <p className="text-xs text-destructive">{errors.category}</p>
-            )}
-          </div>
-
-          <div className="grid content-start gap-1.5">
-            <Label>Status</Label>
-            <Select value={status} onValueChange={(v) => setStatus(v as ProductStatus)}>
-              <SelectTrigger className="w-full" aria-label="Status">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {productStatuses.map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {s}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid content-start gap-1.5">
-            <Label htmlFor="product-price" required>Price (USD)</Label>
-            <Input
-              id="product-price"
-              type="number"
-              inputMode="decimal"
-              min={0}
-              step="0.01"
-              value={price}
-              onChange={(e) => {
-                setPrice(e.target.value)
-                setErrors((c) => ({ ...c, price: undefined }))
-              }}
-              placeholder="0.00"
-              aria-invalid={Boolean(errors.price)}
-              className={noSpinner}
-            />
-            {errors.price && <p className="text-xs text-destructive">{errors.price}</p>}
-          </div>
-
-          <div className="grid content-start gap-1.5">
-            <Label htmlFor="product-stock" required>Stock</Label>
-            <Input
-              id="product-stock"
-              type="number"
-              inputMode="numeric"
-              min={0}
-              step={1}
-              value={stock}
-              onChange={(e) => {
-                setStock(e.target.value)
-                setErrors((c) => ({ ...c, stock: undefined }))
-              }}
-              placeholder="0"
-              aria-invalid={Boolean(errors.stock)}
-              className={noSpinner}
-            />
-            {errors.stock && <p className="text-xs text-destructive">{errors.stock}</p>}
-          </div>
-
-          <div className="grid content-start gap-1.5 sm:col-span-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="product-description">Description</Label>
-              <span className="text-xs text-muted-foreground">
-                {description.length}/{MAX_DESCRIPTION}
-              </span>
-            </div>
+          </Row>
+          <Row
+            label="Description"
+            hint={`Shown on the product page (${description.length}/${MAX_DESCRIPTION}).`}
+            htmlFor="product-description"
+          >
             <Textarea
               id="product-description"
               rows={5}
@@ -254,88 +293,266 @@ export function ProductForm({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe this product"
-              className="placeholder:text-xs"
             />
-          </div>
-        </CardContent>
-      </Card>
+          </Row>
+        </Section>
 
-      <Card size="sm" className="ring-gold/25">
-        <CardHeader>
-          <CardTitle className="font-serif text-base font-normal">
-            Product image
-          </CardTitle>
-          <CardDescription className="text-xs">
-            PNG or JPG, up to {MAX_IMAGE_MB} MB.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-3">
-          <button
-            type="button"
-            onClick={() => fileInput.current?.click()}
-            aria-label={image ? "Change image" : "Upload image"}
-            className="group relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-lg border border-dashed border-border bg-muted/40 text-muted-foreground transition-colors outline-none hover:border-gold/60 hover:bg-gold/5 focus-visible:border-gold focus-visible:ring-2 focus-visible:ring-gold/25"
-          >
-            {image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={image} alt="Product preview" className="size-full object-cover" />
-            ) : (
-              <span className="flex flex-col items-center gap-2 text-sm">
-                <ImageIcon className="size-8" />
-                Click to upload an image
-              </span>
-            )}
-          </button>
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="border-border"
-              onClick={() => fileInput.current?.click()}
+        <Section title="Media">
+          <div className="p-4">
+            <div
+              onDragOver={(e) => {
+                e.preventDefault()
+                setDragging(true)
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault()
+                setDragging(false)
+                pickImage(e.dataTransfer.files?.[0])
+              }}
+              className={`flex flex-wrap items-center gap-3 rounded-lg border border-dashed p-4 transition-colors ${
+                dragging ? "border-gold bg-gold/5" : "border-border"
+              }`}
             >
-              <UploadIcon />
-              {image ? "Change" : "Upload"}
-            </Button>
-            {image && (
+              {image && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={image}
+                  alt="Product preview"
+                  className="size-16 rounded-md border border-border object-cover"
+                />
+              )}
               <Button
                 type="button"
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                onClick={() => {
-                  setImage(undefined)
-                  if (fileInput.current) fileInput.current.value = ""
-                }}
+                className="border-border"
+                onClick={() => fileInput.current?.click()}
               >
-                <XIcon />
-                Remove
+                <PlusIcon />
+                {image ? "Change file" : "Add file"}
               </Button>
+              <span className="text-sm text-muted-foreground">
+                Drop a product photo here or click to browse. PNG or JPG, up to{" "}
+                {MAX_IMAGE_MB} MB.
+              </span>
+              {image && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="ml-auto"
+                  onClick={() => {
+                    setImage(undefined)
+                    if (fileInput.current) fileInput.current.value = ""
+                  }}
+                >
+                  <XIcon />
+                  Remove
+                </Button>
+              )}
+            </div>
+            <input
+              ref={fileInput}
+              id="product-image"
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              onChange={(e) => pickImage(e.target.files?.[0])}
+            />
+            {errors.image && (
+              <p className="mt-2 text-xs text-destructive">{errors.image}</p>
             )}
           </div>
-          <input
-            ref={fileInput}
-            id="product-image"
-            type="file"
-            accept="image/*"
-            className="sr-only"
-            onChange={(e) => pickImage(e.target.files?.[0])}
-          />
-          {errors.image && <p className="text-xs text-destructive">{errors.image}</p>}
-        </CardContent>
-      </Card>
+        </Section>
 
-      <div className="flex justify-end gap-2 lg:col-span-2">
-        <Button
-          type="button"
-          variant="outline"
-          className="border-border"
-          onClick={onCancel}
-        >
-          Cancel
-        </Button>
-        <Button type="submit" className="bg-ink! text-white! hover:bg-ink/90!">
-          {submitLabel}
-        </Button>
+        <Section title="Variants">
+          <div className="p-4">
+            <div className="mb-2 flex justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="border-border"
+                onClick={addVariant}
+              >
+                <PlusIcon />
+                Add variant
+              </Button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[34rem] text-sm">
+                <thead>
+                  <tr className="border-b border-border text-left text-muted-foreground">
+                    <th className="px-2 py-2 font-normal">Color</th>
+                    <th className="px-2 py-2 font-normal">Size</th>
+                    <th className="px-2 py-2 font-normal">SKU</th>
+                    <th className="px-2 py-2 text-right font-normal">Price</th>
+                    <th className="px-2 py-2 text-right font-normal">Inventory</th>
+                    <th className="w-10" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {variants.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className="py-6 text-center text-muted-foreground"
+                      >
+                        No variants yet. Add one to get started.
+                      </td>
+                    </tr>
+                  )}
+                  {variants.map((v) => (
+                    <tr key={v.id} className="border-b border-border last:border-b-0">
+                      <td className="py-1">
+                        <Input
+                          aria-label="Color"
+                          className={cellInput}
+                          placeholder="Add color"
+                          value={v.color}
+                          onChange={(e) => patchVariant(v.id, { color: e.target.value })}
+                        />
+                      </td>
+                      <td className="py-1">
+                        <Input
+                          aria-label="Size"
+                          className={cellInput}
+                          placeholder="Add size"
+                          value={v.size}
+                          onChange={(e) => patchVariant(v.id, { size: e.target.value })}
+                        />
+                      </td>
+                      <td className="py-1">
+                        <Input
+                          aria-label="SKU"
+                          className={cellInput}
+                          placeholder="Add SKU"
+                          value={v.sku}
+                          onChange={(e) => patchVariant(v.id, { sku: e.target.value })}
+                        />
+                      </td>
+                      <td className="py-1">
+                        <PriceCell
+                          value={v.price}
+                          onChange={(price) => patchVariant(v.id, { price })}
+                        />
+                      </td>
+                      <td className="py-1">
+                        <Input
+                          aria-label="Inventory"
+                          type="number"
+                          min={0}
+                          step={1}
+                          className={`${cellInput} text-right ${noSpinner}`}
+                          value={v.inventory}
+                          onChange={(e) =>
+                            patchVariant(v.id, {
+                              inventory: Math.max(0, Math.trunc(Number(e.target.value))),
+                            })
+                          }
+                        />
+                      </td>
+                      <td className="py-1 text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon-sm"
+                              aria-label="Variant actions"
+                            >
+                              <MoreHorizontalIcon />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => duplicateVariant(v.id)}>
+                              <CopyIcon />
+                              Duplicate
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onClick={() =>
+                                setVariants((all) => all.filter((x) => x.id !== v.id))
+                              }
+                            >
+                              <Trash2Icon />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </Section>
+      </div>
+
+      <div className="grid gap-4 lg:sticky lg:top-4">
+        <Section title="Status">
+          <div className="p-4">
+            <Select value={status} onValueChange={(v) => setStatus(v as ProductStatus)}>
+              <SelectTrigger className="w-full" aria-label="Status">
+                <SelectValue>
+                  <span className="flex items-center gap-2">
+                    <span className={`size-1.5 rounded-full ${statusDot[status]}`} />
+                    {status}
+                  </span>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {productStatuses.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    <span className="flex items-start gap-2">
+                      <span
+                        className={`mt-1.5 size-1.5 shrink-0 rounded-full ${statusDot[s]}`}
+                      />
+                      <span className="grid text-left">
+                        <span className="font-medium">{s}</span>
+                        <span className="text-xs font-normal text-muted-foreground">
+                          {statusHint[s]}
+                        </span>
+                      </span>
+                    </span>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </Section>
+
+        <Section title="Organization">
+          <div className="grid gap-4 p-4">
+            <Field label="Category" error={errors.category}>
+              <Select
+                value={category}
+                onValueChange={(v) => {
+                  setCategory(v)
+                  setErrors((c) => ({ ...c, category: undefined }))
+                }}
+              >
+                <SelectTrigger
+                  className="w-full"
+                  aria-label="Category"
+                  aria-invalid={Boolean(errors.category)}
+                >
+                  <SelectValue placeholder="Choose a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
+        </Section>
       </div>
     </form>
   )

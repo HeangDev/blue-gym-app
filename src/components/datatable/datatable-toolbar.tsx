@@ -47,7 +47,7 @@ export function DataTableToolbar<TData>({
     (showColumnFilters && table.getState().columnFilters.length > 0)
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2 px-4 py-2">
       <div className="relative w-full sm:w-auto sm:min-w-48 sm:flex-1 sm:max-w-xs">
         <SearchIcon className="absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" />
         <Input

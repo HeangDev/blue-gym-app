@@ -3,9 +3,7 @@ import { MenuTrigger } from "@/components/menu-trigger"
 import { MotionProvider } from "@/components/motion"
 import { NotificationsMenu } from "@/components/layout/header/notifications-menu"
 import { PageBreadcrumb } from "@/components/layout/header/page-breadcrumb"
-import { ProfileMenu } from "@/components/profile-menu"
 import { ScrollArea } from "@/components/scroll-area"
-import { SearchCommand } from "@/components/layout/header/search-command"
 import {
     SidebarInset,
     SidebarProvider,
@@ -28,13 +26,7 @@ export default function DashboardLayout({
                             <PageBreadcrumb />
 
                             <div className="ml-auto flex items-center gap-2">
-                                <SearchCommand />
-
                                 <NotificationsMenu />
-
-                                <div className="mx-1 hidden h-6 w-px bg-border sm:block" />
-
-                                <ProfileMenu />
                             </div>
                         </header>
                         <ScrollArea className="min-h-0 flex-1">

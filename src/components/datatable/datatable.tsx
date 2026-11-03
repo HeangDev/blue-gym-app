@@ -77,6 +77,8 @@ type DataTableProps<TData> = {
   onDeleteSelected?: (rows: TData[]) => void
   /** A "..." menu on every row; each action runs your handler. */
   rowActions?: RowAction<TData>[]
+  /** Called when a row is clicked (not its checkbox, buttons or menu). */
+  onRowClick?: (row: TData) => void
   /** Shows placeholder rows (built from this table's own columns) while data loads. */
   loading?: boolean
 }
@@ -99,6 +101,7 @@ export function DataTable<TData>({
   exportTitle,
   onDeleteSelected,
   rowActions,
+  onRowClick,
   loading,
 }: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([])
@@ -229,7 +232,7 @@ export function DataTable<TData>({
   }, [rowSelection])
 
   return (
-    <div className="flex flex-col gap-2.5">
+    <div className="flex flex-col">
       {/* while loading, the controls are visible but can't be used */}
       <div
         inert={loading || undefined}
@@ -246,7 +249,7 @@ export function DataTable<TData>({
       />
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-border bg-card">
+      <div className="overflow-hidden border-t border-border bg-card">
         {/* on small screens the table scrolls sideways inside SimpleBar; the
             table container normally scrolls by itself, so switch that off */}
         <SimpleBar
@@ -284,7 +287,10 @@ export function DataTable<TData>({
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody aria-busy={loading || undefined}>
+            <TableBody
+              aria-busy={loading || undefined}
+              className="[&_tr:last-child]:border-b-0"
+            >
               {loading ? (
                 // placeholder rows follow the real columns on this screen size
                 // and the current page size, so nothing jumps when data arrives
@@ -323,7 +329,19 @@ export function DataTable<TData>({
                   <Fragment key={row.id}>
                     <TableRow
                       data-state={row.getIsSelected() ? "selected" : undefined}
+                      onClick={
+                        onRowClick
+                          ? (e) => {
+                              const t = e.target as HTMLElement
+                              // ignore portaled menus and interactive controls
+                              if (!e.currentTarget.contains(t)) return
+                              if (t.closest("button, a, input, label, [role='checkbox'], [role='menuitem']")) return
+                              onRowClick(row.original)
+                            }
+                          : undefined
+                      }
                       className={cn(
+                        onRowClick && "cursor-pointer",
                         "animate-in fade-in duration-300",
                         "border-border/70 hover:bg-ivory data-[state=selected]:bg-gold/10",
                         // sub rows sit on a faint tint so main rows stand out

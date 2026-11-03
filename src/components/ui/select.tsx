@@ -3,6 +3,7 @@
 import * as React from "react"
 import { cn } from "cn"
 import { Select as SelectPrimitive } from "radix-ui"
+import { SimpleScroll } from "@/components/ui/simple-scroll"
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
 
 function Select({
@@ -61,14 +62,18 @@ function SelectContent({
   children,
   position = "popper",
   align = "center",
+  maxHeight = 96,
   ...props
-}: React.ComponentProps<typeof SelectPrimitive.Content>) {
+}: React.ComponentProps<typeof SelectPrimitive.Content> & {
+  /** Height in px before the list scrolls. The default fits 3 single-line items. */
+  maxHeight?: number
+}) {
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
         data-slot="select-content"
         data-align-trigger={position === "item-aligned"}
-        className={cn("relative z-50 max-h-(--radix-select-content-available-height) min-w-(--radix-select-trigger-width) origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-xl border border-border bg-white p-1.5 font-(family-name:--font-geist-sans) text-popover-foreground shadow-lg duration-100 data-[side=bottom]:slide-in-from-top-1 data-[side=top]:slide-in-from-bottom-1 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", position === "popper" && "data-[side=bottom]:translate-y-1 data-[side=top]:-translate-y-1", className)}
+        className={cn("relative z-50 w-(--radix-select-trigger-width) min-w-(--radix-select-trigger-width) max-w-(--radix-select-trigger-width) origin-(--radix-select-content-transform-origin) overflow-hidden rounded-xl border border-border bg-white p-0 font-(family-name:--font-geist-sans) text-popover-foreground shadow-lg duration-100 data-[side=bottom]:slide-in-from-top-1 data-[side=top]:slide-in-from-bottom-1 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", position === "popper" && "data-[side=bottom]:translate-y-1 data-[side=top]:-translate-y-1", className)}
         position={position}
         align={align}
         {...props}
@@ -81,7 +86,11 @@ function SelectContent({
             position === "popper" && ""
           )}
         >
-          {children}
+          <SimpleScroll
+            maxHeight={`min(var(--radix-select-content-available-height), ${maxHeight}px)`}
+          >
+            {children}
+          </SimpleScroll>
         </SelectPrimitive.Viewport>
         <SelectScrollDownButton />
       </SelectPrimitive.Content>
@@ -111,7 +120,7 @@ function SelectItem({
     <SelectPrimitive.Item
       data-slot="select-item"
       className={cn(
-        "relative flex w-full cursor-pointer items-center gap-2 rounded-lg py-2 pr-9 pl-3 text-sm transition-colors outline-hidden select-none hover:bg-gold/15 focus:bg-gold/15 focus:text-foreground active:bg-gold/25 data-[state=checked]:font-medium data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+        "relative flex w-full cursor-pointer items-center gap-2 rounded-lg py-1 pr-9 pl-3 text-sm transition-colors outline-hidden select-none hover:bg-gold/15 focus:bg-gold/15 focus:text-foreground active:bg-gold/25 data-[state=checked]:font-medium data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
         className
       )}
       {...props}

@@ -1,18 +1,13 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { PencilIcon, PlusIcon, ToggleRightIcon, Trash2Icon } from "lucide-react"
 import { type ColumnDef } from "@tanstack/react-table"
 
 import { DataTable, StatusBadge, type RowAction } from "@/components/datatable"
-import { PlanCreateDialog, type NewPlan } from "@/components/plan-create-dialog"
+import { PlanDrawer, type NewPlan } from "@/components/plan-drawer"
 import { Button } from "@/components/ui/button"
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 
 type Status = "Active" | "Archived"
 type Billing = "Monthly" | "Yearly"
@@ -87,9 +82,17 @@ const columns: ColumnDef<Plan>[] = [
 ]
 
 export default function PlansPage() {
+    // sample data loads instantly, so fake a short load to show the skeleton;
+    // with a real API, use its loading flag instead
+    const [loading, setLoading] = useState(true)
+    useEffect(() => {
+        const t = setTimeout(() => setLoading(false), 800)
+        return () => clearTimeout(t)
+    }, [])
+
     const [rows, setRows] = useState(plans)
     const [createOpen, setCreateOpen] = useState(false)
-    // the plan being edited (opens the edit popup)
+    // the plan being edited (opens the edit drawer)
     const [editing, setEditing] = useState<Plan | null>(null)
 
     function handleCreate(plan: NewPlan) {
@@ -158,21 +161,21 @@ export default function PlansPage() {
                 </Button>
             </div>
 
-            <PlanCreateDialog
+            <PlanDrawer
                 open={createOpen}
                 onOpenChange={setCreateOpen}
                 existing={rows}
-                onCreate={handleCreate}
+                onSubmit={handleCreate}
             />
 
-            {/* edit popup: name, billing, price and status of the chosen plan */}
-            <PlanCreateDialog
+            {/* edit drawer: name, billing, price and status of the chosen plan */}
+            <PlanDrawer
                 mode="edit"
                 open={editing !== null}
                 onOpenChange={(open) => !open && setEditing(null)}
                 existing={rows}
                 initial={editing ?? undefined}
-                onCreate={(plan) => {
+                onSubmit={(plan) => {
                     if (!editing) return
                     setRows((cur) =>
                         cur.map((r) => (r.id === editing.id ? { ...r, ...plan } : r))
@@ -181,13 +184,10 @@ export default function PlansPage() {
             />
 
             <Card size="sm" className="ring-gold/25">
-                <CardHeader>
-                    <CardTitle className="font-serif text-base font-normal">
-                        All plans
-                    </CardTitle>
-                </CardHeader>
                 <CardContent>
                     <DataTable
+
+                        loading={loading}
                         columns={columns}
                         data={rows}
                         selection

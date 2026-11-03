@@ -8,11 +8,9 @@ import { DataTable, StatusBadge, type RowAction } from "@/components/datatable"
 import {
     Card,
     CardContent,
-    CardHeader,
-    CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { UserEditDialog, type UserFields } from "@/components/user-edit-dialog"
+import { UserDrawer, type UserFields } from "@/components/user-drawer"
 
 type Role = "Admin" | "Manager" | "Staff"
 type Status = "Active" | "Suspended" | "Invited"
@@ -194,11 +192,6 @@ export default function UsersPage() {
             </div>
 
             <Card size="sm" className="ring-gold/25">
-                <CardHeader>
-                    <CardTitle className="font-serif text-base font-normal">
-                        All users
-                    </CardTitle>
-                </CardHeader>
                 <CardContent>
                     <DataTable
                         loading={loading}
@@ -216,7 +209,7 @@ export default function UsersPage() {
                 </CardContent>
             </Card>
 
-            <UserEditDialog
+            <UserDrawer
                 mode="create"
                 open={createOpen}
                 onOpenChange={setCreateOpen}
@@ -234,7 +227,7 @@ export default function UsersPage() {
                 }
             />
 
-            <UserEditDialog
+            <UserDrawer
                 open={editing !== null}
                 onOpenChange={(open) => !open && setEditing(null)}
                 roles={roles}

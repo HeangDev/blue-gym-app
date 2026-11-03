@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ImageIcon, PencilIcon, PlusIcon, ToggleRightIcon, Trash2Icon } from "lucide-react"
@@ -11,8 +11,6 @@ import { Button } from "@/components/ui/button"
 import {
     Card,
     CardContent,
-    CardHeader,
-    CardTitle,
 } from "@/components/ui/card"
 import {
     productStatuses,
@@ -97,6 +95,14 @@ const columns: ColumnDef<Product>[] = [
 ]
 
 export default function ProductsPage() {
+    // sample data loads instantly, so fake a short load to show the skeleton;
+    // with a real API, use its loading flag instead
+    const [loading, setLoading] = useState(true)
+    useEffect(() => {
+        const t = setTimeout(() => setLoading(false), 800)
+        return () => clearTimeout(t)
+    }, [])
+
     const rows = useProducts()
     const router = useRouter()
 
@@ -156,13 +162,10 @@ export default function ProductsPage() {
             </div>
 
             <Card size="sm" className="ring-gold/25">
-                <CardHeader>
-                    <CardTitle className="font-serif text-base font-normal">
-                        All products
-                    </CardTitle>
-                </CardHeader>
                 <CardContent>
                     <DataTable
+
+                        loading={loading}
                         columns={columns}
                         data={rows}
                         selection

@@ -13,9 +13,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { DatePicker } from "@/components/ui/date-picker"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { PromotionStatusSelect } from "@/components/promotion-status-select"
+import { PromotionStatusSelect } from "@/app/(dashboard)/promotions/_components/promotion-form"
 import {
   createPromotionSchema,
   promotionStatuses,
@@ -108,7 +109,7 @@ function PromotionForm({ onOpenChange, initial, existing = [], onSave }: Props) 
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-1.5">
-          <Label htmlFor="promo-name" required>Name</Label>
+          <Label htmlFor="promo-name">Name</Label>
           <Input
             id="promo-name"
             {...register("name")}
@@ -118,7 +119,7 @@ function PromotionForm({ onOpenChange, initial, existing = [], onSave }: Props) 
           {error(errors.name?.message)}
         </div>
         <div className="grid gap-1.5">
-          <Label htmlFor="promo-code" required>Code</Label>
+          <Label htmlFor="promo-code">Code</Label>
           <Input
             id="promo-code"
             {...register("code")}
@@ -132,7 +133,7 @@ function PromotionForm({ onOpenChange, initial, existing = [], onSave }: Props) 
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-1.5">
-          <Label htmlFor="promo-type" required>Type</Label>
+          <Label htmlFor="promo-type">Type</Label>
           <Input
             id="promo-type"
             {...register("type")}
@@ -167,22 +168,37 @@ function PromotionForm({ onOpenChange, initial, existing = [], onSave }: Props) 
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-1.5">
-          <Label htmlFor="promo-start" required>Start date</Label>
-          <Input
-            id="promo-start"
-            type="date"
-            {...register("startDate")}
-            aria-invalid={Boolean(errors.startDate)}
+          <Label htmlFor="promo-start">Start date</Label>
+          <Controller
+            control={control}
+            name="startDate"
+            render={({ field }) => (
+              <DatePicker
+                id="promo-start"
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="Pick a start date"
+                invalid={Boolean(errors.startDate)}
+              />
+            )}
           />
           {error(errors.startDate?.message)}
         </div>
         <div className="grid gap-1.5">
           <Label htmlFor="promo-end">End date</Label>
-          <Input
-            id="promo-end"
-            type="date"
-            {...register("endDate")}
-            aria-invalid={Boolean(errors.endDate)}
+          <Controller
+            control={control}
+            name="endDate"
+            render={({ field }) => (
+              <DatePicker
+                id="promo-end"
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="No end date"
+                clearable
+                invalid={Boolean(errors.endDate)}
+              />
+            )}
           />
           {error(errors.endDate?.message)}
         </div>

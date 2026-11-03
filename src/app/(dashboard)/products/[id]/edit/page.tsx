@@ -1,9 +1,8 @@
 "use client"
 
-import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeftIcon } from "lucide-react"
 
+import { Button } from "@/components/ui/button"
 import { ProductForm } from "../../_components/product-form"
 import {
     productCategories,
@@ -19,20 +18,34 @@ export default function EditProductPage() {
 
     return (
         <>
-            <div>
-                <Link
-                    href="/products"
-                    className="mb-2 inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
-                >
-                    <ArrowLeftIcon className="size-3.5" />
-                    Back to products
-                </Link>
-                <h2 className="font-serif text-3xl tracking-tight">
-                    Edit product
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                    {product ? `Change the details of ${product.id}.` : "This product could not be found."}
-                </p>
+            <div className="flex items-end justify-between gap-4">
+                <div>
+                    <h2 className="font-serif text-xl tracking-tight">
+                        Edit product
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                        {product ? `Change the details of ${product.id}.` : "This product could not be found."}
+                    </p>
+                </div>
+                <div className="flex gap-2">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        className="border-border"
+                        onClick={() => router.push("/products")}
+                    >
+                        Cancel
+                    </Button>
+                    {product && (
+                        <Button
+                            type="submit"
+                            form="product-form"
+                            className="bg-ink! text-white! hover:bg-ink/90!"
+                        >
+                            Save changes
+                        </Button>
+                    )}
+                </div>
             </div>
 
             {product && (
@@ -40,12 +53,10 @@ export default function EditProductPage() {
                     initial={product}
                     categories={productCategories}
                     existingNames={rows.filter((r) => r.id !== product.id).map((r) => r.name)}
-                    submitLabel="Save changes"
                     onSubmit={(changes) => {
                         updateProduct(product.id, changes)
                         router.push("/products")
                     }}
-                    onCancel={() => router.push("/products")}
                 />
             )}
         </>

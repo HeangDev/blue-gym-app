@@ -92,7 +92,7 @@ export default function LoginPage() {
 
                 <form onSubmit={handleSubmit} autoComplete="off" noValidate className="mt-8 grid gap-5">
                     <div className="grid gap-2">
-                        <Label htmlFor="username" required>{t("username")}</Label>
+                        <Label htmlFor="username">{t("username")}</Label>
                         <div className="relative">
                             <UserIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
                             <Input
@@ -118,7 +118,7 @@ export default function LoginPage() {
 
                     <div className="grid gap-2">
                         <div className="flex items-center justify-between">
-                            <Label htmlFor="password" required>{t("password")}</Label>
+                            <Label htmlFor="password">{t("password")}</Label>
                         </div>
                         <div className="relative">
                             <LockIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />

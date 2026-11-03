@@ -5,9 +5,15 @@ import { Controller, useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { InfoIcon } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { DatePicker } from "@/components/ui/date-picker"
 import { Input } from "@/components/ui/input"
+import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupInput,
+    InputGroupText,
+} from "@/components/ui/input-group"
 import { Label } from "@/components/ui/label"
 import {
     Select,
@@ -18,13 +24,15 @@ import {
 } from "@/components/ui/select"
 import {
     createNewPromotionSchema,
+    promotionMethodHints,
     promotionMethods,
+    promotionTargetHints,
     promotionTargets,
+    promotionValueTypeHints,
     promotionValueTypes,
     type NewPromotionFormValues,
 } from "@/schemas/promotion.schema"
-import { PromotionStatusSelect } from "@/components/promotion-status-select"
-import { type NewPromotion } from "../_lib/promotions-store"
+import { type NewPromotion, type Promotion } from "../_lib/promotions-store"
 
 // "20% off order", "$5 off shipping"
 function describe(v: Pick<NewPromotionFormValues, "appliesTo" | "valueType" | "value">) {
@@ -32,6 +40,23 @@ function describe(v: Pick<NewPromotionFormValues, "appliesTo" | "valueType" | "v
     const amount = Number.isFinite(n) ? n : 0
     const off = v.valueType === "Percentage" ? `${amount}%` : `$${amount}`
     return `${off} off ${v.appliesTo.toLowerCase()}`
+}
+
+// Reverse of describe(): "20% off order" -> Percentage / 20. Types that don't
+// follow that pattern (e.g. "Free shipping") leave the value blank to fill in.
+function parseType(
+    type: string
+): Pick<NewPromotionFormValues, "appliesTo" | "valueType" | "value"> {
+    const m = /^(\$)?(\d+(?:\.\d+)?)(%)? off (.+)$/i.exec(type.trim())
+    const appliesTo =
+        promotionTargets.find((t) => t.toLowerCase() === m?.[4]?.toLowerCase()) ??
+        "Membership Plan"
+    if (!m) return { appliesTo, valueType: "Percentage", value: "" }
+    return {
+        appliesTo,
+        valueType: m[3] ? "Percentage" : "Fixed amount",
+        value: m[2],
+    }
 }
 
 // A section card: a title, then a bordered box of label / control rows.
@@ -42,9 +67,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
                 <CardTitle className="text-sm font-semibold">{title}</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="divide-y divide-dashed divide-border/80 rounded-xl border border-border bg-white">
-                    {children}
-                </div>
+                {children}
             </CardContent>
         </Card>
     )
@@ -54,7 +77,6 @@ function Row({
     label,
     hint,
     htmlFor,
-    required,
     info,
     error,
     children,
@@ -62,28 +84,19 @@ function Row({
     label: string
     hint: string
     htmlFor?: string
-    required?: boolean
     info?: string
     error?: string
     children: ReactNode
 }) {
     return (
-        <div className="grid gap-3 px-5 py-4 sm:grid-cols-[1fr_2.3fr] sm:gap-8">
+        <div className="grid items-center gap-3 px-5 py-4 sm:grid-cols-[1fr_2.3fr] sm:gap-8">
             <div>
-                <Label htmlFor={htmlFor} required={required} className="gap-1.5 text-sm font-semibold">
+                <Label htmlFor={htmlFor} className="gap-1.5 text-sm font-semibold">
                     {label}
-                    {info && (
-                        <InfoIcon
-                            className="size-3.5 text-muted-foreground"
-                            aria-label={info}
-                        >
-                            <title>{info}</title>
-                        </InfoIcon>
-                    )}
                 </Label>
                 <p className="mt-0.5 text-sm text-muted-foreground">{hint}</p>
             </div>
-            <div className="grid content-start gap-1.5 [&_[data-slot=select-trigger]]:rounded-xl">
+            <div className="grid content-center gap-1.5">
                 {children}
                 {error && <p className="text-xs text-destructive">{error}</p>}
             </div>
@@ -96,21 +109,71 @@ function Choice<T extends string>({
     onChange,
     options,
     label,
+    hints,
 }: {
     value: T
     onChange: (v: T) => void
     options: readonly T[]
     label: string
+    hints?: Partial<Record<T, string>>
 }) {
     return (
         <Select value={value} onValueChange={(v) => onChange(v as T)}>
             <SelectTrigger className="w-full" aria-label={label}>
                 <SelectValue>{value}</SelectValue>
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent maxHeight={hints ? 144 : undefined}>
                 {options.map((o) => (
                     <SelectItem key={o} value={o}>
-                        {o}
+                        {hints?.[o] ? (
+                            <span className="grid text-left">
+                                <span>{o}</span>
+                                <span className="text-xs text-muted-foreground">
+                                    {hints[o]}
+                                </span>
+                            </span>
+                        ) : (
+                            o
+                        )}
+                    </SelectItem>
+                ))}
+            </SelectContent>
+        </Select>
+    )
+}
+
+type PromotionStatus = "Active" | "Draft" | "Expired" | "Scheduled"
+
+const statusOptions: { value: PromotionStatus; hint: string }[] = [
+    { value: "Active", hint: "Live and redeemable right now." },
+    { value: "Scheduled", hint: "Starts automatically on its start date." },
+    { value: "Expired", hint: "Past its end date, no longer redeemable." },
+    { value: "Draft", hint: "Saved but not redeemable." },
+]
+
+// Status picker: each option has a short explanation under its name.
+export function PromotionStatusSelect({
+    value,
+    onChange,
+}: {
+    value: PromotionStatus
+    onChange: (value: PromotionStatus) => void
+}) {
+    return (
+        <Select value={value} onValueChange={(v) => onChange(v as PromotionStatus)}>
+            <SelectTrigger className="w-full" aria-label="Status">
+                {/* shown explicitly so the trigger holds only the name, not the hint */}
+                <SelectValue>{value}</SelectValue>
+            </SelectTrigger>
+            <SelectContent maxHeight={144}>
+                {statusOptions.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>
+                        <div className="flex flex-col items-start gap-0.5">
+                            <span className="font-medium">{o.value}</span>
+                            <span className="text-xs font-normal text-muted-foreground">
+                                {o.hint}
+                            </span>
+                        </div>
                     </SelectItem>
                 ))}
             </SelectContent>
@@ -122,15 +185,14 @@ function Choice<T extends string>({
 // with Status in a side card.
 export function PromotionForm({
     existingCodes,
-    submitLabel,
+    initial,
     onSubmit,
-    onCancel,
 }: {
     /** Codes that are already taken. */
     existingCodes: string[]
-    submitLabel: string
+    /** Fill the form with this promotion (edit mode). */
+    initial?: Promotion
     onSubmit: (promotion: NewPromotion) => void
-    onCancel: () => void
 }) {
     const schema = useMemo(
         () => createNewPromotionSchema({ others: existingCodes }),
@@ -145,17 +207,22 @@ export function PromotionForm({
     } = useForm<NewPromotionFormValues>({
         resolver: zodResolver(schema),
         defaultValues: {
-            name: "",
-            code: "",
-            method: "Code",
-            appliesTo: "Order",
-            valueType: "Percentage",
-            value: "",
-            startDate: "",
-            endDate: "",
-            limit: "",
-            minSubtotal: "",
-            status: "Draft",
+            name: initial?.name ?? "",
+            code: initial?.code ?? "",
+            method: initial?.method ?? "Code",
+            ...(initial
+                ? parseType(initial.type)
+                : {
+                      appliesTo: "Membership Plan" as const,
+                      valueType: "Percentage" as const,
+                      value: "",
+                  }),
+            startDate: initial?.startDate ?? "",
+            endDate: initial?.endDate ?? "",
+            limit: initial?.limit === undefined ? "" : String(initial.limit),
+            minSubtotal:
+                initial?.minSubtotal === undefined ? "" : String(initial.minSubtotal),
+            status: initial?.status ?? "Draft",
         },
     })
 
@@ -181,10 +248,11 @@ export function PromotionForm({
 
     return (
         <form
+            id="promotion-form"
             onSubmit={submit}
             noValidate
             autoComplete="off"
-            className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_16rem]"
+            className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]"
         >
             <div className="grid gap-4">
                 <Section title="Details">
@@ -192,13 +260,12 @@ export function PromotionForm({
                         label="Name"
                         hint="Internal label for this promotion."
                         htmlFor="promo-name"
-                        required
                         error={errors.name?.message}
                     >
                         <Input
                             id="promo-name"
                             {...register("name")}
-                            autoFocus
+                            autoFocus={!initial}
                             placeholder="e.g. Summer sale"
                             aria-invalid={Boolean(errors.name)}
                         />
@@ -208,7 +275,6 @@ export function PromotionForm({
                             label="Promo code"
                             hint="What shoppers type at checkout."
                             htmlFor="promo-code"
-                            required
                             error={errors.code?.message}
                         >
                             <Input
@@ -234,12 +300,12 @@ export function PromotionForm({
                                     value={field.value}
                                     onChange={field.onChange}
                                     options={promotionMethods}
+                                    hints={promotionMethodHints}
                                 />
                             )}
                         />
                     </Row>
                 </Section>
-
                 <Section title="Discount">
                     <Row
                         label="Applies to"
@@ -255,6 +321,7 @@ export function PromotionForm({
                                     value={field.value}
                                     onChange={field.onChange}
                                     options={promotionTargets}
+                                    hints={promotionTargetHints}
                                 />
                             )}
                         />
@@ -272,6 +339,7 @@ export function PromotionForm({
                                     value={field.value}
                                     onChange={field.onChange}
                                     options={promotionValueTypes}
+                                    hints={promotionValueTypeHints}
                                 />
                             )}
                         />
@@ -280,29 +348,27 @@ export function PromotionForm({
                         label="Value"
                         hint={percent ? "Percentage taken off." : "Amount taken off."}
                         htmlFor="promo-value"
-                        required
                         error={errors.value?.message}
                     >
-                        <div className="relative">
+                        <InputGroup>
                             {!percent && (
-                                <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm text-muted-foreground">
-                                    $
-                                </span>
+                                <InputGroupAddon>
+                                    <InputGroupText>$</InputGroupText>
+                                </InputGroupAddon>
                             )}
-                            <Input
+                            <InputGroupInput
                                 id="promo-value"
                                 inputMode="decimal"
                                 {...register("value")}
                                 placeholder={percent ? "20" : "5"}
                                 aria-invalid={Boolean(errors.value)}
-                                className={percent ? "pr-8" : "pl-7"}
                             />
                             {percent && (
-                                <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-sm text-muted-foreground">
-                                    %
-                                </span>
+                                <InputGroupAddon align="inline-end">
+                                    <InputGroupText>%</InputGroupText>
+                                </InputGroupAddon>
                             )}
-                        </div>
+                        </InputGroup>
                     </Row>
                     <Row
                         label="Preview"
@@ -313,20 +379,25 @@ export function PromotionForm({
                         </p>
                     </Row>
                 </Section>
-
                 <Section title="Schedule">
                     <Row
                         label="Starts"
                         hint="The day this promotion becomes redeemable."
                         htmlFor="promo-start"
-                        required
                         error={errors.startDate?.message}
                     >
-                        <Input
-                            id="promo-start"
-                            type="date"
-                            {...register("startDate")}
-                            aria-invalid={Boolean(errors.startDate)}
+                        <Controller
+                            control={control}
+                            name="startDate"
+                            render={({ field }) => (
+                                <DatePicker
+                                    id="promo-start"
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    placeholder="Pick a start date"
+                                    invalid={Boolean(errors.startDate)}
+                                />
+                            )}
                         />
                     </Row>
                     <Row
@@ -335,15 +406,22 @@ export function PromotionForm({
                         htmlFor="promo-end"
                         error={errors.endDate?.message}
                     >
-                        <Input
-                            id="promo-end"
-                            type="date"
-                            {...register("endDate")}
-                            aria-invalid={Boolean(errors.endDate)}
+                        <Controller
+                            control={control}
+                            name="endDate"
+                            render={({ field }) => (
+                                <DatePicker
+                                    id="promo-end"
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    placeholder="No end date"
+                                    clearable
+                                    invalid={Boolean(errors.endDate)}
+                                />
+                            )}
                         />
                     </Row>
                 </Section>
-
                 <Section title="Limits">
                     <Row
                         label="Usage limit"
@@ -365,42 +443,27 @@ export function PromotionForm({
                         htmlFor="promo-min"
                         error={errors.minSubtotal?.message}
                     >
-                        <div className="relative">
-                            <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-sm text-muted-foreground">
-                                $
-                            </span>
-                            <Input
+                        <InputGroup>
+                            <InputGroupAddon>
+                                <InputGroupText>$</InputGroupText>
+                            </InputGroupAddon>
+                            <InputGroupInput
                                 id="promo-min"
                                 inputMode="decimal"
                                 {...register("minSubtotal")}
                                 placeholder="No minimum"
                                 aria-invalid={Boolean(errors.minSubtotal)}
-                                className="pl-7"
                             />
-                        </div>
+                        </InputGroup>
                     </Row>
                 </Section>
-
-                <div className="flex justify-end gap-2">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        className="border-border"
-                        onClick={onCancel}
-                    >
-                        Cancel
-                    </Button>
-                    <Button type="submit" className="bg-ink! text-white! hover:bg-ink/90!">
-                        {submitLabel}
-                    </Button>
-                </div>
             </div>
 
             <Card size="sm" className="ring-gold/25 lg:sticky lg:top-4">
                 <CardHeader>
                     <CardTitle className="text-sm font-semibold">Status</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="divide-y-0 p-4">
                     <Controller
                         control={control}
                         name="status"

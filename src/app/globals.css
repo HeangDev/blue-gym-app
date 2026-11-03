@@ -142,6 +142,10 @@ body {
 }
 
 .dark {
+  /* the app hardcodes white, ivory and ink; remap them so they follow the dark theme */
+  --color-white: oklch(0.21 0.006 285.885);
+  --color-ivory: oklch(0.17 0.005 285.823);
+  --color-ink: #ece8df;
   --background: oklch(0.141 0.005 285.823);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.21 0.006 285.885);
@@ -261,4 +265,19 @@ body {
   [data-simplebar] .simplebar-content-wrapper {
     scroll-behavior: auto;
   }
+}
+
+/* simplebar inside popovers (select, dropdown menu): keep the bar clear of the
+   border and of the items, with even spacing on every side */
+[data-simplebar][data-slot="simple-scroll"] .simplebar-content {
+  padding: 6px !important;
+}
+[data-simplebar][data-slot="simple-scroll"] .simplebar-track.simplebar-vertical {
+  top: 8px;
+  bottom: 8px;
+  right: 4px;
+  width: 4px;
+}
+[data-simplebar][data-slot="simple-scroll"] .simplebar-track.simplebar-vertical:hover {
+  width: 4px;
 }

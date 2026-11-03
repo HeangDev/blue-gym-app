@@ -1,22 +1,19 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { PencilIcon, PlusIcon, ToggleRightIcon, Trash2Icon } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+import { ImageIcon, PencilIcon, PlusIcon, ToggleRightIcon, Trash2Icon } from "lucide-react"
 import { type ColumnDef } from "@tanstack/react-table"
 
 import {
-    CategoryCreateDialog,
-    type NewCategory,
+    CategoryDrawer,
+    type CategoryValues,
     type ParentOption,
-} from "@/components/category-create-dialog"
+} from "@/components/category-drawer"
 import { DataTable, StatusBadge, type RowAction } from "@/components/datatable"
 import { Button } from "@/components/ui/button"
 import {
     Card,
     CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
 } from "@/components/ui/card"
 
 type Category = {
@@ -24,6 +21,8 @@ type Category = {
     name: string
     products: number
     status: "Active" | "Draft"
+    description?: string
+    image?: string | null
     subRows?: Category[]
 }
 
@@ -82,8 +81,45 @@ const categories: Category[] = [
     { id: "groceries", name: "Groceries", products: 205, status: "Active" },
 ]
 
+// sample photos and descriptions for the seed data (new categories use what you enter)
+function withImages(list: Category[]): Category[] {
+    return list.map((c) => ({
+        ...c,
+        image: c.image ?? `https://picsum.photos/seed/${c.id}/96`,
+        description: c.description ?? `Shop ${c.name.toLowerCase()} and related products.`,
+        subRows: c.subRows ? withImages(c.subRows) : undefined,
+    }))
+}
+
 const columns: ColumnDef<Category>[] = [
-    { accessorKey: "name", header: "Name" },
+    {
+        accessorKey: "name",
+        header: "Name",
+        cell: ({ row }) => (
+            <div className="flex items-center gap-3">
+                <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted text-muted-foreground">
+                    {row.original.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                            src={row.original.image}
+                            alt=""
+                            className="size-full object-cover"
+                        />
+                    ) : (
+                        <ImageIcon className="size-4" />
+                    )}
+                </div>
+                <div className="min-w-0">
+                    <div>{row.original.name}</div>
+                    {row.original.description && (
+                        <div className="max-w-xs truncate text-xs text-muted-foreground">
+                            {row.original.description}
+                        </div>
+                    )}
+                </div>
+            </div>
+        ),
+    },
     {
         accessorKey: "products",
         header: "Products",
@@ -155,7 +191,15 @@ function flatten(list: Category[], depth = 0): ParentOption[] {
 }
 
 export default function CategoriesPage() {
-    const [rows, setRows] = useState(categories)
+    // sample data loads instantly, so fake a short load to show the skeleton;
+    // with a real API, use its loading flag instead
+    const [loading, setLoading] = useState(true)
+    useEffect(() => {
+        const t = setTimeout(() => setLoading(false), 800)
+        return () => clearTimeout(t)
+    }, [])
+
+    const [rows, setRows] = useState(() => withImages(categories))
     const [selected, setSelected] = useState<Category[]>([])
     const [createOpen, setCreateOpen] = useState(false)
     // the category being edited (opens the edit popup)
@@ -201,20 +245,17 @@ export default function CategoriesPage() {
 
     const options = flatten(rows)
 
-    // adds a top-level category from the "Add new parent" button and returns its id
-    function handleAddParent(name: string) {
-        const id = `${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now().toString(36)}`
-        setRows((current) => [
-            ...current,
-            { id, name, products: 0, status: "Active" },
-        ])
-        return id
-    }
-
-    function handleCreate({ name, parentId, status }: NewCategory) {
-        const id = `${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now().toString(36)}`
+    function handleCreate(v: CategoryValues) {
+        const id = `${v.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now().toString(36)}`
         setRows((current) =>
-            addCategory(current, parentId, { id, name, products: 0, status })
+            addCategory(current, v.parentId, {
+                id,
+                name: v.name,
+                products: 0,
+                status: v.active ? "Active" : "Draft",
+                description: v.description,
+                image: v.image,
+            })
         )
     }
 
@@ -236,48 +277,51 @@ export default function CategoriesPage() {
                 </Button>
             </div>
 
-            <CategoryCreateDialog
+            <CategoryDrawer
                 open={createOpen}
                 onOpenChange={setCreateOpen}
                 parents={options}
                 existingNames={options.map((o) => o.name)}
-                onAddParent={handleAddParent}
-                onCreate={handleCreate}
+                onSubmit={handleCreate}
             />
 
-            {/* edit popup: name + status of the chosen category */}
-            <CategoryCreateDialog
+            <CategoryDrawer
                 mode="edit"
                 open={editing !== null}
                 onOpenChange={(open) => !open && setEditing(null)}
                 parents={options}
                 existingNames={options
-                .filter((o) => o.id !== editing?.id)
-                .map((o) => o.name)}
+                    .filter((o) => o.id !== editing?.id)
+                    .map((o) => o.name)}
                 initial={
-                    editing ? { name: editing.name, status: editing.status } : undefined
+                    editing
+                        ? {
+                              name: editing.name,
+                              description: editing.description,
+                              image: editing.image,
+                              active: editing.status === "Active",
+                          }
+                        : undefined
                 }
-                onCreate={({ name, status }) => {
+                onSubmit={(v) => {
                     if (!editing) return
                     setRows((cur) =>
-                        updateCategory(cur, editing.id, (c) => ({ ...c, name, status }))
+                        updateCategory(cur, editing.id, (c) => ({
+                            ...c,
+                            name: v.name,
+                            description: v.description,
+                            image: v.image,
+                            status: v.active ? "Active" : "Draft",
+                        }))
                     )
                 }}
             />
 
             <Card size="sm" className="ring-gold/25">
-                <CardHeader>
-                    <CardTitle className="font-serif text-base font-normal">
-                        Category tree
-                    </CardTitle>
-                    <CardDescription className="block truncate text-xs">
-                        {selected.length
-                        ? `${selected.length} selected: ${selected.map((c) => c.name).join(", ")}`
-                        : "Tick a parent to select all of its sub-categories."}
-                    </CardDescription>
-                </CardHeader>
                 <CardContent>
                     <DataTable
+
+                        loading={loading}
                         columns={columns}
                         data={rows}
                         selection

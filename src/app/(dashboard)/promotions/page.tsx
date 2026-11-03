@@ -1,7 +1,8 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { CopyIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
 import { type ColumnDef } from "@tanstack/react-table"
 
@@ -10,14 +11,10 @@ import { DataTable, StatusBadge, type RowAction } from "@/components/datatable"
 import {
     Card,
     CardContent,
-    CardHeader,
-    CardTitle,
 } from "@/components/ui/card"
-import { PromotionEditDialog } from "@/components/promotion-edit-dialog"
 import {
     promotionStatuses as statuses,
     removePromotions,
-    updatePromotion,
     usePromotions,
     type Promotion,
     type PromotionStatus as Status,
@@ -120,15 +117,21 @@ const columns: ColumnDef<Promotion>[] = [
 
 export default function PromotionsPage() {
     const rows = usePromotions()
-    // the promotion being edited (opens the edit popup)
-    const [editing, setEditing] = useState<Promotion | null>(null)
+    const router = useRouter()
+    // sample data loads instantly, so fake a short load to show the skeleton;
+    // with a real API, use its loading flag instead
+    const [loading, setLoading] = useState(true)
+    useEffect(() => {
+        const t = setTimeout(() => setLoading(false), 800)
+        return () => clearTimeout(t)
+    }, [])
 
     const rowActions = useMemo<RowAction<Promotion>[]>(
         () => [
             {
                 label: "Edit",
                 icon: PencilIcon,
-                onSelect: (p) => setEditing(p),
+                onSelect: (p) => router.push(`/promotions/${p.id}/edit`),
             },
             {
                 label: "Copy code",
@@ -150,7 +153,7 @@ export default function PromotionsPage() {
                 onSelect: (p) => removePromotions([p.id]),
             },
         ],
-        []
+        [router]
     )
 
     return (
@@ -174,15 +177,11 @@ export default function PromotionsPage() {
             </div>
 
             <Card size="sm" className="ring-gold/25">
-                <CardHeader>
-                    <CardTitle className="font-serif text-base font-normal">
-                        All promotions
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="rounded-none border-t-0">
                     <DataTable
                         columns={columns}
                         data={rows}
+                        loading={loading}
                         selection
                         getRowId={(p) => p.id}
                         rowActions={rowActions}
@@ -193,17 +192,6 @@ export default function PromotionsPage() {
                     />
                 </CardContent>
             </Card>
-
-            <PromotionEditDialog
-                open={editing !== null}
-                onOpenChange={(open) => !open && setEditing(null)}
-                initial={editing ?? undefined}
-                existing={rows}
-                onSave={(f) => {
-                    if (!editing) return
-                    updatePromotion(editing.id, f)
-                }}
-            />
         </>
     )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { CopyIcon } from "lucide-react"
 import { type ColumnDef } from "@tanstack/react-table"
 
@@ -8,9 +8,6 @@ import { DataTable, StatusBadge, type RowAction } from "@/components/datatable"
 import {
     Card,
     CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
 } from "@/components/ui/card"
 
 type Action = "Login" | "Create" | "Update" | "Delete" | "Export"
@@ -122,6 +119,14 @@ function LogDetails({ log }: { log: AuditLog }) {
 }
 
 export default function AuditLogsPage() {
+    // sample data loads instantly, so fake a short load to show the skeleton;
+    // with a real API, use its loading flag instead
+    const [loading, setLoading] = useState(true)
+    useEffect(() => {
+        const t = setTimeout(() => setLoading(false), 800)
+        return () => clearTimeout(t)
+    }, [])
+
     // audit logs are a record: read-only, so no delete or edit actions
     const rowActions = useMemo<RowAction<AuditLog>[]>(
         () => [
@@ -146,16 +151,10 @@ export default function AuditLogsPage() {
             </div>
 
             <Card size="sm" className="ring-gold/25">
-                <CardHeader>
-                    <CardTitle className="font-serif text-base font-normal">
-                        Activity
-                    </CardTitle>
-                    <CardDescription className="text-xs">
-                        Expand a row for the details, or search by user, action or resource.
-                    </CardDescription>
-                </CardHeader>
                 <CardContent>
                     <DataTable
+
+                        loading={loading}
                         columns={columns}
                         data={logs}
                         getRowId={(l) => l.id}

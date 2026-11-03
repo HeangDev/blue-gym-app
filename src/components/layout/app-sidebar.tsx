@@ -1,18 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
 import { usePathname } from "next/navigation"
-import {
-    LogOutIcon,
-    SettingsIcon,
-} from "lucide-react"
-
 import SimpleBar from "simplebar-react"
 import "simplebar-react/dist/simplebar.min.css"
 
+import { SidebarUserMenu } from "@/components/layout/sidebar/user-menu"
 import { BranchSwitcher } from "@/components/layout/sidebar/branch-switcher"
-import { LogoutDialog } from "@/components/logout-dialog"
 import { navGroups } from "@/lib/nav"
 import {
     Sidebar,
@@ -33,7 +27,6 @@ const activeClass = "rounded-lg text-sidebar-foreground/80 transition-all hover:
 
 export function AppSidebar() {
     const pathname = usePathname()
-    const [logoutOpen, setLogoutOpen] = useState(false)
 
     return (
         <>
@@ -75,34 +68,9 @@ export function AppSidebar() {
             </SimpleBar>
         </SidebarContent>
         <SidebarFooter className="border-t border-sidebar-border p-2">
-            <SidebarMenu className="gap-1">
-                <SidebarMenuItem>
-                    <SidebarMenuButton
-                        asChild
-                        isActive={pathname === "/settings"}
-                        className={activeClass}
-                        tooltip="Settings"
-                    >
-                        <Link href="/settings">
-                            <SettingsIcon />
-                            <span>Settings</span>
-                        </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                    <SidebarMenuButton
-                        className="rounded-lg text-red-300 hover:bg-red-500/10 hover:text-red-200"
-                        tooltip="Logout"
-                        onClick={() => setLogoutOpen(true)}
-                    >
-                        <LogOutIcon />
-                        <span>Logout</span>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            </SidebarMenu>
+            <SidebarUserMenu />
         </SidebarFooter>
         </Sidebar>
-        <LogoutDialog open={logoutOpen} onOpenChange={setLogoutOpen} />
         </>
     )
 }

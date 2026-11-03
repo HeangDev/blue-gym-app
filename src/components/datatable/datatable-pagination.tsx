@@ -29,7 +29,7 @@ export function DataTablePagination<TData>({
   const total = table.getFilteredRowModel().rows.length
 
   return (
-    <div className="flex flex-col items-stretch gap-2.5 text-xs sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+    <div className="flex flex-col items-stretch gap-2.5 border-t border-border bg-muted/50 px-4 py-2 text-xs sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
       <div className="hidden items-center gap-2 sm:flex">
         <span className="text-muted-foreground">Rows per page</span>
         <Select
