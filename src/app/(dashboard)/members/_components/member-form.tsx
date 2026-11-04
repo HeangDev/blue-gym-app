@@ -37,7 +37,11 @@ export type MemberValues = {
   paymentMethod: PaymentMethod
   billingCycle: BillingCycle
   billingEmail: string
+  /** null = no discount for this member */
+  discount: { type: DiscountType; value: number } | null
 }
+
+export type DiscountType = "Percent" | "Fixed"
 
 const GENDERS: Gender[] = ["Male", "Female", "Other"]
 
@@ -160,7 +164,17 @@ export function MemberForm({
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(initial?.paymentMethod ?? "Card")
   const [billingCycle, setBillingCycle] = useState<BillingCycle>(initial?.billingCycle ?? "Monthly")
   const [billingEmail, setBillingEmail] = useState(initial?.billingEmail ?? "")
-  const [errors, setErrors] = useState<{ name?: string; avatar?: string; billingEmail?: string }>({})
+  const [hasDiscount, setHasDiscount] = useState(Boolean(initial?.discount))
+  const [discountType, setDiscountType] = useState<DiscountType>(initial?.discount?.type ?? "Percent")
+  const [discountValue, setDiscountValue] = useState(
+    initial?.discount ? String(initial.discount.value) : "",
+  )
+  const [errors, setErrors] = useState<{
+    name?: string
+    avatar?: string
+    billingEmail?: string
+    discount?: string
+  }>({})
 
   function pickAvatar(file?: File) {
     if (!file) return
@@ -182,7 +196,18 @@ export function MemberForm({
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return setErrors({ billingEmail: "Please enter a valid email." })
 
+    let discount: MemberValues["discount"] = null
+    if (hasDiscount) {
+      const value = Number(discountValue)
+      if (!discountValue.trim() || !Number.isFinite(value) || value <= 0)
+        return setErrors({ discount: "Enter a discount greater than 0." })
+      if (discountType === "Percent" && value > 100)
+        return setErrors({ discount: "Percent can't be more than 100." })
+      discount = { type: discountType, value }
+    }
+
     onSubmit({
+      discount,
       name: n,
       gender,
       avatar,
@@ -305,6 +330,56 @@ export function MemberForm({
                 ))}
               </SelectContent>
             </Select>
+          </Row>
+          <Row
+            label="Discount"
+            hint="Give this member a discount on their plan."
+            htmlFor="member-discount"
+            error={errors.discount}
+          >
+            <div className="flex items-center gap-3">
+              <Switch
+                checked={hasDiscount}
+                onChange={(v) => {
+                  setHasDiscount(v)
+                  setErrors((s) => ({ ...s, discount: undefined }))
+                }}
+                label="Give a discount"
+              />
+              <span className="text-sm text-muted-foreground">
+                {hasDiscount ? "Discount applied" : "No discount"}
+              </span>
+            </div>
+            {hasDiscount && (
+              <div className="grid grid-cols-[9rem_1fr] gap-2">
+                <Select
+                  value={discountType}
+                  onValueChange={(v) => setDiscountType(v as DiscountType)}
+                >
+                  <SelectTrigger className="w-full" aria-label="Discount type">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Percent">Percent (%)</SelectItem>
+                    <SelectItem value="Fixed">Fixed ($)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Input
+                  id="member-discount"
+                  type="number"
+                  min={0}
+                  step="any"
+                  inputMode="decimal"
+                  value={discountValue}
+                  onChange={(e) => {
+                    setDiscountValue(e.target.value)
+                    setErrors((s) => ({ ...s, discount: undefined }))
+                  }}
+                  placeholder={discountType === "Percent" ? "e.g. 10" : "e.g. 5.00"}
+                  aria-invalid={Boolean(errors.discount)}
+                />
+              </div>
+            )}
           </Row>
           <Row
             label="Billing email"

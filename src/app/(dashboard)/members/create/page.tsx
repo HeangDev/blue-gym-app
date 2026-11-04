@@ -50,6 +50,7 @@ export default function CreateMemberPage() {
                         paymentMethod: v.paymentMethod,
                         billingCycle: v.billingCycle,
                         billingEmail: v.billingEmail,
+                        discount: v.discount,
                         plan: v.plan,
                         status: v.active ? "Active" : "Inactive",
                     })

@@ -368,7 +368,7 @@ export function ProductForm({
 
         <Section title="Variants">
           <div className="p-4">
-            <div className="mb-2 flex justify-end">
+            <div className="mb-4 flex justify-end">
               <Button
                 type="button"
                 variant="outline"
@@ -384,11 +384,11 @@ export function ProductForm({
               <table className="w-full min-w-[34rem] text-sm">
                 <thead>
                   <tr className="border-b border-border text-left text-muted-foreground">
-                    <th className="px-2 py-2 font-normal">Color</th>
-                    <th className="px-2 py-2 font-normal">Size</th>
-                    <th className="px-2 py-2 font-normal">SKU</th>
-                    <th className="px-2 py-2 text-right font-normal">Price</th>
-                    <th className="px-2 py-2 text-right font-normal">Inventory</th>
+                    <th className="px-3 py-2 font-normal">Color</th>
+                    <th className="px-3 py-2 font-normal">Size</th>
+                    <th className="px-3 py-2 font-normal">SKU</th>
+                    <th className="px-3 py-2 text-right font-normal">Price</th>
+                    <th className="px-3 py-2 text-right font-normal">Inventory</th>
                     <th className="w-10" />
                   </tr>
                 </thead>
@@ -405,7 +405,7 @@ export function ProductForm({
                   )}
                   {variants.map((v) => (
                     <tr key={v.id} className="border-b border-border last:border-b-0">
-                      <td className="py-1">
+                      <td className="px-1 py-1.5">
                         <Input
                           aria-label="Color"
                           className={cellInput}
@@ -414,7 +414,7 @@ export function ProductForm({
                           onChange={(e) => patchVariant(v.id, { color: e.target.value })}
                         />
                       </td>
-                      <td className="py-1">
+                      <td className="px-1 py-1.5">
                         <Input
                           aria-label="Size"
                           className={cellInput}
@@ -423,7 +423,7 @@ export function ProductForm({
                           onChange={(e) => patchVariant(v.id, { size: e.target.value })}
                         />
                       </td>
-                      <td className="py-1">
+                      <td className="px-1 py-1.5">
                         <Input
                           aria-label="SKU"
                           className={cellInput}
@@ -432,13 +432,13 @@ export function ProductForm({
                           onChange={(e) => patchVariant(v.id, { sku: e.target.value })}
                         />
                       </td>
-                      <td className="py-1">
+                      <td className="px-1 py-1.5">
                         <PriceCell
                           value={v.price}
                           onChange={(price) => patchVariant(v.id, { price })}
                         />
                       </td>
-                      <td className="py-1">
+                      <td className="px-1 py-1.5">
                         <Input
                           aria-label="Inventory"
                           type="number"
@@ -453,7 +453,7 @@ export function ProductForm({
                           }
                         />
                       </td>
-                      <td className="py-1 text-right">
+                      <td className="px-1 py-1.5 text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button

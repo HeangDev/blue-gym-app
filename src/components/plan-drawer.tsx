@@ -129,7 +129,7 @@ export function PlanDrawer({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="gap-0 overflow-hidden rounded-2xl border border-border bg-white! font-(family-name:--font-geist-sans) data-[side=right]:inset-y-3 data-[side=right]:right-3 data-[side=right]:h-auto data-[side=right]:sm:max-w-md">
+      <SheetContent className="gap-0 overflow-hidden rounded-2xl border border-border bg-white! font-(family-name:--font-geist-sans) data-[side=right]:inset-y-3 data-[side=right]:right-3 data-[side=right]:h-auto data-[side=right]:w-[calc(100%-1.5rem)] data-[side=right]:sm:max-w-md">
         <form
           onSubmit={submit}
           noValidate

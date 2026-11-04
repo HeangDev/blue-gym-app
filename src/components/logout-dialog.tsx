@@ -23,9 +23,10 @@ export function LogoutDialog({
 }) {
     const router = useRouter()
 
-    function logout() {
-        // TODO: end the session here once auth exists.
-        router.push("/login")
+    async function logout() {
+        await fetch("/api/auth/logout", { method: "POST" })
+        router.replace("/login")
+        router.refresh()
     }
 
     return (

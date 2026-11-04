@@ -1,4 +1,4 @@
-import type { BillingCycle, Gender, PaymentMethod } from "@/app/(dashboard)/members/_components/member-form"
+import type { BillingCycle, DiscountType, Gender, PaymentMethod } from "@/app/(dashboard)/members/_components/member-form"
 
 export type Status = "Active" | "Inactive" | "Pending"
 export type Plan = "Free" | "Pro" | "Business"
@@ -13,6 +13,7 @@ export type Member = {
     paymentMethod?: PaymentMethod
     billingCycle?: BillingCycle
     billingEmail?: string
+    discount?: { type: DiscountType; value: number } | null
     totalSpent?: number
     avgOrder?: number
     subscriptions?: number

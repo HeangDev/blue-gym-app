@@ -84,7 +84,7 @@ export function BranchSwitcher() {
       </SidebarMenu>
 
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="gap-0 overflow-hidden border-border bg-white! p-0 font-(family-name:--font-geist-sans) sm:max-w-md">
+        <DialogContent className="max-h-[calc(100dvh-2rem)] grid-rows-[auto_minmax(0,1fr)_auto] gap-0 overflow-hidden border-border bg-white! p-0 font-(family-name:--font-geist-sans) sm:max-w-md">
           {/* header: title + search */}
           <DialogHeader className="gap-1 px-4 pt-5 pb-4 sm:px-5">
             <DialogTitle className="font-serif text-xl font-normal tracking-tight">
@@ -109,7 +109,7 @@ export function BranchSwitcher() {
           <ul
             role="radiogroup"
             aria-label="Branches"
-            className="flex max-h-[min(22rem,50dvh)] flex-col gap-2 overflow-y-auto px-4 pb-4 sm:px-5"
+            className="flex min-h-0 max-h-88 flex-col gap-2 overflow-y-auto px-4 pb-4 sm:px-5"
           >
             {filtered.map((branch) => {
               const selected = branch.id === pendingId

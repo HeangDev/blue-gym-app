@@ -3,7 +3,6 @@
 import * as React from "react"
 import { cn } from "cn"
 import { Select as SelectPrimitive } from "radix-ui"
-import { SimpleScroll } from "@/components/ui/simple-scroll"
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
 
 function Select({
@@ -82,15 +81,18 @@ function SelectContent({
         <SelectPrimitive.Viewport
           data-position={position}
           className={cn(
-            "data-[position=popper]:w-full data-[position=popper]:min-w-(--radix-select-trigger-width)",
+            "p-1 data-[position=popper]:w-full data-[position=popper]:min-w-(--radix-select-trigger-width)",
             position === "popper" && ""
           )}
         >
-          <SimpleScroll
-            maxHeight={`min(var(--radix-select-content-available-height), ${maxHeight}px)`}
+          <div
+            className="overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            style={{
+              maxHeight: `min(var(--radix-select-content-available-height), ${maxHeight}px)`,
+            }}
           >
             {children}
-          </SimpleScroll>
+          </div>
         </SelectPrimitive.Viewport>
         <SelectScrollDownButton />
       </SelectPrimitive.Content>

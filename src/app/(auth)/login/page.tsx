@@ -64,8 +64,18 @@ export default function LoginPage() {
             // storage blocked: sign in anyway
         }
         try {
-            // TODO: call your auth API here, and setError(t("errorMessage")) on failure
-            console.log({ username, password })
+            const res = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password }),
+            })
+            if (!res.ok) {
+                setError(t("errorMessage"))
+                return
+            }
+            // only follow same-site paths, so ?next= can't redirect elsewhere
+            const next = new URLSearchParams(window.location.search).get("next")
+            window.location.assign(next && /^\/(?!\/)/.test(next) ? next : "/dashboard")
         } finally {
             setLoading(false)
         }

@@ -54,7 +54,7 @@ export function UserDrawer<Role extends string, Status extends string>(
   const { open, onOpenChange, mode = "edit" } = props
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="gap-0 overflow-hidden rounded-2xl border border-border bg-white! font-(family-name:--font-geist-sans) data-[side=right]:inset-y-3 data-[side=right]:right-3 data-[side=right]:h-auto data-[side=right]:sm:max-w-md">
+      <SheetContent className="gap-0 overflow-hidden rounded-2xl border border-border bg-white! font-(family-name:--font-geist-sans) data-[side=right]:inset-y-3 data-[side=right]:right-3 data-[side=right]:h-auto data-[side=right]:w-[calc(100%-1.5rem)] data-[side=right]:sm:max-w-md">
         {/* mounted only while open, so the form starts fresh every time */}
         {open && <UserForm {...props} mode={mode} />}
       </SheetContent>
@@ -216,7 +216,7 @@ function UserForm<Role extends string, Status extends string>({
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid gap-3 min-[420px]:grid-cols-2">
           <div className="grid gap-1.5">
             <Label>Role</Label>
             <Controller
